@@ -86,8 +86,43 @@ local function join( arr, sep )
 end
 
 
+local function eperm( tbl, key, val )
+    error( "Cannot add/modify property '" .. key ..  "' of read-only table." ..
+            " <" .. tostring(tbl) .. ">", 2 );
+end
+
+local function _freeze( tbl, act )
+    return setmetatable( {}, {
+        __index = tbl,
+        __newindex = act or eperm
+    })
+end
+
+local function freeze( tbl, all, act )
+    print( 'freeze:', tbl, all );
+    if all == true then
+        local res = {};
+        local k,v = next( tbl );
+        local t;
+        while k do
+            t = type( v );
+            print( k, v, t );
+            if t == 'table' then
+                rawset( res, k, freeze( v, all, act ) );
+            else
+                rawset( res, k, v );
+            end
+            k,v = next( tbl, k );
+        end
+        return _freeze( res, act );
+    else
+        return _freeze( tbl, act );
+    end
+end
+
 return {
-    inspect = inspect,
+    freeze = freeze,
     concat = concat,
-    join = join
+    join = join,
+    inspect = inspect
 };
