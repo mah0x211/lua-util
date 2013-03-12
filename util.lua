@@ -67,9 +67,27 @@ function concat( self, ... )
     return res;
 end
 
+function join( self, arr, sep )
+    local res = {};
+    local k,v = next( arr );
+    local tk,tv;
+    -- traverse table as array
+    while k do
+        t = type( v );
+        if t == 'string' or t == 'number' then
+            table.insert( res, v );
+        else
+            table.insert( res, tostring( v ) );
+        end
+        k,v = next( arr, k );
+    end
+    
+    return table.concat( res, sep );
+end
 
 
 return {
     inspect = inspect,
-    concat = concat
+    concat = concat,
+    join = join
 };
