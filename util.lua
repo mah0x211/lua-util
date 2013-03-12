@@ -5,7 +5,6 @@ function inspect( self, obj, indent )
     indent = indent or '';
     
     if t == 'table' then
-        -- first item
         local k,v = next( obj );
         local LF = '';
         table.insert( res, '{ ' );
@@ -36,6 +35,41 @@ function inspect( self, obj, indent )
     return table.concat( res, '' );
 end
 
+function concat( self, ... )
+    local res = {};
+    local args = {...};
+    local idx,arg = next( args );
+    local k,v,t;
+    -- traverse arguments
+    while idx do
+        t = type( arg );
+        -- traverse table
+        if t == 'table' then
+            k,v = next( arg );
+            while k do
+                t = type( k );
+                -- indexed value
+                if t == 'number' then
+                    table.insert( res, v );
+                -- keyed value
+                else
+                    rawset( res, k, v );
+                end
+                k,v = next( arg, k );
+            end
+        -- add arg
+        else
+            table.insert( res, arg );
+        end
+        idx,arg = next( args, idx );
+    end
+    
+    return res;
+end
+
+
+
 return {
-    inspect = inspect
+    inspect = inspect,
+    concat = concat
 };
