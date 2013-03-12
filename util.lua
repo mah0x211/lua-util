@@ -1,4 +1,4 @@
-function inspect( self, obj, indent )
+local function inspect( obj, indent )
     local res = {};
     local t = type( obj );
     
@@ -14,7 +14,7 @@ function inspect( self, obj, indent )
             table.insert( res, '\n' .. indent .. 
                           '    "' .. tostring( k ) .. '"' );
             if t == 'table' then
-                table.insert( res, ': ' .. self:inspect( v, indent .. '    ' ) );
+                table.insert( res, ': ' .. inspect( v, indent .. '    ' ) );
             elseif t == 'string' then
                 table.insert( res, ': "' .. v .. '",' );
             elseif t == 'number' then
@@ -35,7 +35,7 @@ function inspect( self, obj, indent )
     return table.concat( res, '' );
 end
 
-function concat( self, ... )
+local function concat( ... )
     local res = {};
     local args = {...};
     local idx,arg = next( args );
@@ -67,7 +67,7 @@ function concat( self, ... )
     return res;
 end
 
-function join( self, arr, sep )
+local function join( arr, sep )
     local res = {};
     local k,v = next( arr );
     local tk,tv;
