@@ -99,14 +99,12 @@ local function _freeze( tbl, act )
 end
 
 local function freeze( tbl, all, act )
-    print( 'freeze:', tbl, all );
     if all == true then
         local res = {};
         local k,v = next( tbl );
         local t;
         while k do
             t = type( v );
-            print( k, v, t );
             if t == 'table' then
                 rawset( res, k, freeze( v, all, act ) );
             else
