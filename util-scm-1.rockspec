@@ -7,7 +7,7 @@ description = {
     summary = "utility functions",
     detailed = [[]],
     homepage = "https://github.com/mah0x211/lua-util", 
-    license = "MIT",
+    license = "MIT/X11",
     maintainer = "Masatoshi Teruya"
 }
 dependencies = {
