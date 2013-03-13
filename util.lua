@@ -28,10 +28,9 @@ local function _inspect( obj, indent, nestIndent, tail, circular )
     
     if t == 'table' then
         local k,v = next( obj );
-        local LF = '';
         local nestTail = '';
-        local tk;
         local ref = tostring( obj );
+        local tk;
         
         -- circular reference
         if circular[ref] then
@@ -40,10 +39,10 @@ local function _inspect( obj, indent, nestIndent, tail, circular )
             -- save reference
             rawset( circular, ref, true );
             table.insert( res, '{ ' );
+            tail = ( k and '\n' .. indent or '' ) .. '}';
+            
             while k do
-                LF = '\n';
                 tk = type( k );
-                t = type( v );
                 if tk == 'string' then
                     -- if standard name rule
                     if k:match('^[a-zA-Z_][a-zA-Z0-9_]*$') then
@@ -61,8 +60,8 @@ local function _inspect( obj, indent, nestIndent, tail, circular )
                                   '["' .. tostring( k ) .. '"]' );
                 end
                 
+                t = type( v );
                 if t == 'table' then
-                    
                     table.insert( res, _inspect( v, indent .. nestIndent, nestIndent, ',', circular ) );
                 elseif t == 'string' then
                     table.insert( res, '"' .. v .. '"' );
@@ -76,7 +75,8 @@ local function _inspect( obj, indent, nestIndent, tail, circular )
                 k,v = next( obj,k );
                 nestTail = ',';
             end
-            table.insert( res, LF .. indent .. '}' );
+            
+            table.insert( res, tail );
         end
     elseif t == 'string' then
         table.insert( res, indent .. obj .. tail );
