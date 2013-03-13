@@ -22,42 +22,84 @@
 
 --]]
 
-local function inspect( obj, indent )
+local function _inspect( obj, indent, nestIndent, tail, circular )
     local res = {};
     local t = type( obj );
-    
-    indent = indent or '';
     
     if t == 'table' then
         local k,v = next( obj );
         local LF = '';
-        table.insert( res, '{ ' );
-        while k do
-            LF = '\n';
-            t = type( v );
-            table.insert( res, '\n' .. indent .. 
-                          '    "' .. tostring( k ) .. '"' );
-            if t == 'table' then
-                table.insert( res, ': ' .. inspect( v, indent .. '    ' ) );
-            elseif t == 'string' then
-                table.insert( res, ': "' .. v .. '",' );
-            elseif t == 'number' then
-                table.insert( res, ': ' .. tostring( v ) .. ',' );
-            else
-                table.insert( res, ': "' .. tostring( v ) .. '",' );
+        local nestTail = '';
+        local tk;
+        local ref = tostring( obj );
+        
+        -- circular reference
+        if circular[ref] then
+            table.insert( res, '"<Circular ' .. ref .. '>"' );
+        else
+            -- save reference
+            rawset( circular, ref, true );
+            table.insert( res, '{ ' );
+            while k do
+                LF = '\n';
+                tk = type( k );
+                t = type( v );
+                if tk == 'string' then
+                    -- if standard name rule
+                    if k:match('^[a-zA-Z_][a-zA-Z0-9_]*$') then
+                        table.insert( res, nestTail .. '\n' .. indent .. 
+                                      nestIndent .. k .. ' = ' );
+                    -- add bracket
+                    else
+                        table.insert( res, nestTail .. '\n' .. indent .. 
+                                      nestIndent ..'["' .. k .. '"] = ' );
+                    end
+                elseif tk == 'number' then
+                    table.insert( res, nestTail .. '\n' .. indent .. nestIndent );
+                else
+                    table.insert( res, nestTail .. '\n' .. indent .. nestIndent ..
+                                  '["' .. tostring( k ) .. '"]' );
+                end
+                
+                if t == 'table' then
+                    
+                    table.insert( res, _inspect( v, indent .. nestIndent, nestIndent, ',', circular ) );
+                elseif t == 'string' then
+                    table.insert( res, '"' .. v .. '"' );
+                elseif t == 'number' then
+                    table.insert( res, tostring( v ) );
+                else
+                    table.insert( res, '"' .. tostring( v ) .. '"' );
+                end
+                
+                -- next item
+                k,v = next( obj,k );
+                nestTail = ',';
             end
-            -- next item
-            k,v = next( obj,k );
+            table.insert( res, LF .. indent .. '}' );
         end
-        table.insert( res, LF .. indent .. '},' );
     elseif t == 'string' then
-        table.insert( res, indent .. obj .. ',' );
+        table.insert( res, indent .. obj .. tail );
     else
-        table.insert( res, indent .. tostring( obj ) .. ',' );
+        table.insert( res, indent .. tostring( obj ) .. tail );
     end
     
     return table.concat( res, '' );
 end
+
+local function inspect( obj, indent_lv )
+    local indent = '';
+    local i = 0;
+    
+    indent_lv = indent_lv or 4;
+    for i = 0, indent_lv - 1, 1 do
+        indent = indent .. ' ';
+    end
+    
+    return _inspect( obj, '', indent, '', {} );
+end
+
+
 
 local function concat( ... )
     local res = {};
