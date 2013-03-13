@@ -157,31 +157,40 @@ local function eperm( tbl, key, val )
             " <" .. tostring(tbl) .. ">", 2 );
 end
 
-local function _freeze( tbl, act )
+local function _freezing( tbl, act )
     return setmetatable( {}, {
         __index = tbl,
         __newindex = act or eperm
     })
 end
 
-local function freeze( tbl, all, act )
+local function _freeze( tbl, all, act, circular )
     if all == true then
         local res = {};
         local k,v = next( tbl );
-        local t;
+        local t,ref;
         while k do
             t = type( v );
             if t == 'table' then
-                rawset( res, k, freeze( v, all, act ) );
+                ref = tostring( v );
+                if circular[ref] == nil then
+                    circular[ref] = true;
+                    rawset( res, k, _freeze( v, all, act, circular ) );
+                end
             else
                 rawset( res, k, v );
             end
             k,v = next( tbl, k );
         end
-        return _freeze( res, act );
-    else
-        return _freeze( tbl, act );
+        
+        return _freezing( res, act );
     end
+    
+    return _freezing( tbl, act );
+end
+
+local function freeze( tbl, all, act )
+    return _freeze( tbl, all, act, {} );
 end
 
 return {
