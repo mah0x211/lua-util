@@ -143,6 +143,57 @@ local function tbl_freeze( tbl, all, act )
 end
 
 
+function tbl_keys( tbl )
+    local list = {};
+    for k in pairs( tbl ) do
+        table.insert( list, k );
+    end
+    return list;
+end
+
+
+function tbl_each( tbl, fn )
+    local k,v = next( tbl );
+    
+    while k do
+        if fn( v, k, tbl ) == false then
+            break;
+        end
+        k,v = next( tbl, k );
+    end
+end
+
+
+function tbl_each_key( tbl, fn )
+    for k,v in pairs( tbl ) do
+        if fn( v, k, tbl ) == false then
+            break;
+        end
+    end
+end
+
+function tbl_each_idx( tbl, fn )
+    for i,v in ipairs( tbl ) do
+        if fn( v, i, tbl ) == false then
+            break;
+        end
+    end
+end
+
+
+function tbl_merge( src, dest, idx )
+    local k,v = next( src );
+    
+    idx = ( type( idx ) == 'number' ) and idx or #dest;
+    
+    while k do
+        table.insert( dest, idx, v );
+        idx = idx + 1;
+        k,v = next( src, k );
+    end
+end
+
+
 local function tbl_join( arr, sep )
     local res = {};
     local k,v = next( arr );
@@ -208,6 +259,11 @@ end
 
 return {
     freeze = tbl_freeze,
+    keys = tbl_keys,
+    each = tbl_each,
+    each_key = tbl_each_key,
+    each_idx = tbl_each_idx,
+    merge = tbl_merge,
     join = tbl_join,
     split = str_split,
     concat = concat,
