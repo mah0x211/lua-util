@@ -101,6 +101,78 @@ end
 
 
 
+local function eperm( tbl, key, val )
+    error( "Cannot add/modify property '" .. key ..  "' of read-only table." ..
+            " <" .. tostring(tbl) .. ">", 2 );
+end
+
+local function _tbl_freezing( tbl, act )
+    return setmetatable( {}, {
+        __index = tbl,
+        __newindex = act or eperm
+    })
+end
+
+local function _tbl_freeze( tbl, all, act, circular )
+    if all == true then
+        local res = {};
+        local k,v = next( tbl );
+        local t,ref;
+        while k do
+            t = type( v );
+            if t == 'table' then
+                ref = tostring( v );
+                if circular[ref] == nil then
+                    circular[ref] = true;
+                    rawset( res, k, _tbl_freeze( v, all, act, circular ) );
+                end
+            else
+                rawset( res, k, v );
+            end
+            k,v = next( tbl, k );
+        end
+        
+        return _tbl_freezing( res, act );
+    end
+    
+    return _tbl_freezing( tbl, act );
+end
+
+local function tbl_freeze( tbl, all, act )
+    return _tbl_freeze( tbl, all, act, {} );
+end
+
+
+local function tbl_join( arr, sep )
+    local res = {};
+    local k,v = next( arr );
+    local tk,tv;
+    -- traverse table as array
+    while k do
+        t = type( v );
+        if t == 'string' or t == 'number' then
+            table.insert( res, v );
+        else
+            table.insert( res, tostring( v ) );
+        end
+        k,v = next( arr, k );
+    end
+    
+    return table.concat( res, sep );
+end
+
+
+local function str_split( str, sep )
+    local res = {};
+    
+    for seg in string.gmatch( str, '[^' .. sep .. ']+' ) do
+        table.insert( res, seg );
+    end
+    
+    return res;
+end
+
+
 local function concat( ... )
     local res = {};
     local args = {...};
@@ -133,81 +205,11 @@ local function concat( ... )
     return res;
 end
 
-local function join( arr, sep )
-    local res = {};
-    local k,v = next( arr );
-    local tk,tv;
-    -- traverse table as array
-    while k do
-        t = type( v );
-        if t == 'string' or t == 'number' then
-            table.insert( res, v );
-        else
-            table.insert( res, tostring( v ) );
-        end
-        k,v = next( arr, k );
-    end
-    
-    return table.concat( res, sep );
-end
-
-
-local function eperm( tbl, key, val )
-    error( "Cannot add/modify property '" .. key ..  "' of read-only table." ..
-            " <" .. tostring(tbl) .. ">", 2 );
-end
-
-local function _freezing( tbl, act )
-    return setmetatable( {}, {
-        __index = tbl,
-        __newindex = act or eperm
-    })
-end
-
-local function _freeze( tbl, all, act, circular )
-    if all == true then
-        local res = {};
-        local k,v = next( tbl );
-        local t,ref;
-        while k do
-            t = type( v );
-            if t == 'table' then
-                ref = tostring( v );
-                if circular[ref] == nil then
-                    circular[ref] = true;
-                    rawset( res, k, _freeze( v, all, act, circular ) );
-                end
-            else
-                rawset( res, k, v );
-            end
-            k,v = next( tbl, k );
-        end
-        
-        return _freezing( res, act );
-    end
-    
-    return _freezing( tbl, act );
-end
-
-local function freeze( tbl, all, act )
-    return _freeze( tbl, all, act, {} );
-end
-
-
-local function split( str, sep )
-    local res = {};
-    for seg in string.gmatch( str, '[^' .. sep .. ']+' ) do
-        table.insert( res, seg );
-    end
-    
-    return res;
-end
-
 
 return {
-    freeze = freeze,
+    freeze = tbl_freeze,
+    join = tbl_join,
+    split = str_split,
     concat = concat,
-    split = split,
-    join = join,
     inspect = inspect
 };
