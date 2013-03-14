@@ -193,9 +193,21 @@ local function freeze( tbl, all, act )
     return _freeze( tbl, all, act, {} );
 end
 
+
+local function split( str, sep )
+    local res = {};
+    for seg in string.gmatch( str, '[^' .. sep .. ']+' ) do
+        table.insert( res, seg );
+    end
+    
+    return res;
+end
+
+
 return {
     freeze = freeze,
     concat = concat,
+    split = split,
     join = join,
     inspect = inspect
 };
