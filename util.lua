@@ -184,12 +184,17 @@ end
 function tbl_merge( src, dest, idx )
     local k,v = next( src );
     
-    idx = ( type( idx ) == 'number' ) and idx or #dest;
-    
-    while k do
-        table.insert( dest, idx, v );
-        idx = idx + 1;
-        k,v = next( src, k );
+    if type( idx ) == 'number' then
+        while k do
+            table.insert( dest, idx, v );
+            idx = idx + 1;
+            k,v = next( src, k );
+        end
+    else
+        while k do
+            table.insert( dest, v );
+            k,v = next( src, k );
+        end
     end
 end
 
