@@ -143,7 +143,7 @@ local function tbl_freeze( tbl, all, act )
 end
 
 
-function tbl_keys( tbl )
+local function tbl_keys( tbl )
     local list = {};
     for k in pairs( tbl ) do
         table.insert( list, k );
@@ -152,7 +152,7 @@ function tbl_keys( tbl )
 end
 
 
-function tbl_each( tbl, fn )
+local function tbl_each( tbl, fn )
     local k,v = next( tbl );
     
     while k do
@@ -164,7 +164,7 @@ function tbl_each( tbl, fn )
 end
 
 
-function tbl_each_key( tbl, fn )
+local function tbl_each_key( tbl, fn )
     for k,v in pairs( tbl ) do
         if fn( v, k, tbl ) == false then
             break;
@@ -172,7 +172,8 @@ function tbl_each_key( tbl, fn )
     end
 end
 
-function tbl_each_idx( tbl, fn )
+
+local function tbl_each_idx( tbl, fn )
     for i,v in ipairs( tbl ) do
         if fn( v, i, tbl ) == false then
             break;
@@ -181,7 +182,7 @@ function tbl_each_idx( tbl, fn )
 end
 
 
-function tbl_merge( src, dest, idx )
+local function tbl_merge( src, dest, idx )
     local k,v = next( src );
     
     if type( idx ) == 'number' then
