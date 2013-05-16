@@ -305,6 +305,57 @@ local function concat( ... )
 end
 
 
+local function _isa( ist, ... )
+    local argv = {...};
+    local argc = #argv;
+    local t = type( argv[1] );
+    
+    if argc < 2 then
+        return t == ist;
+    elseif t == 'table' then
+        local arg = str_split( argv[2], '.' );
+        -- fn.apply( this, args );
+        table.insert( arg, 1, argv[1] );
+        arg = tbl_getkv( unpack( arg ) );
+        if type( arg ) ~= ist then
+            return false;
+        end
+        
+        return argc < 3 or arg == argv[3];
+    end
+    
+    return t == ist and argv[1] == argv[2];
+end
+
+local function is_bool( ... )
+    return _isa( 'boolean', ... );
+end
+
+local function is_str( ... )
+    return _isa( 'string', ... );
+end
+
+local function is_num( ... )
+    return _isa( 'number', ... );
+end
+
+local function is_func( ... )
+    return _isa( 'function', ... );
+end
+
+local function is_tbl( ... )
+    return _isa( 'table', ... );
+end
+
+local function is_thd( ... )
+    return _isa( 'thread', ... );
+end
+
+local function is_udata( ... )
+    return _isa( 'userdata', ... );
+end
+
+
 return {
     freeze = tbl_freeze,
     getkv = tbl_getkv,
@@ -317,5 +368,12 @@ return {
     join = tbl_join,
     split = str_split,
     concat = concat,
+    is_bool = is_bool,
+    is_str = is_str,
+    is_num = is_num,
+    is_func = is_func,
+    is_tbl = is_tbl,
+    is_thd = is_thd,
+    is_udata = is_udata,
     inspect = inspect
 };
