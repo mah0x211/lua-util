@@ -45,7 +45,7 @@ local function _inspect( obj, indent, nestIndent, tail, circular )
                 tk = type( k );
                 if tk == 'string' then
                     -- if standard name rule
-                    if k:match('^[a-zA-Z_][a-zA-Z0-9_]*$') then
+                    if string.match( k, '^[a-zA-Z_][a-zA-Z0-9_]*$' ) then
                         table.insert( res, nestTail .. '\n' .. indent .. 
                                       nestIndent .. k .. ' = ' );
                     -- add bracket
