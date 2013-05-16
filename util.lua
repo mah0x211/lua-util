@@ -143,6 +143,48 @@ local function tbl_freeze( tbl, all, act )
 end
 
 
+local function tbl_getkv( tbl, ... )
+    local argv = {...};
+    local argc = #argv;
+    local val,i;
+    
+    for i = 1, argc - 1, 1 do
+        val = tbl[argv[i]];
+        if type( val ) ~= 'table' then
+            return nil;
+        end
+        tbl = val;
+    end
+    
+    return tbl[argv[argc]];
+end
+
+
+local function tbl_setkv( tbl, ... )
+    local argv = {...};
+    local argc = #argv;
+    local prev = tbl;
+    local val;
+    
+    for i = 1, argc - 1, 1 do
+        val = prev[argv[i]];
+        if type( val ) ~= 'table' then
+            for i = i, argc - 1, 1 do
+                val = {};
+                prev[argv[i]] = val;
+                prev = val;
+            end
+            break;
+        end
+        prev = val;
+    end
+    
+    prev[argc] = argv[argc];
+    
+    return prev;
+end
+
+
 local function tbl_keys( tbl )
     local list = {};
     for k in pairs( tbl ) do
@@ -265,6 +307,8 @@ end
 
 return {
     freeze = tbl_freeze,
+    getkv = tbl_getkv,
+    setkv = tbl_setkv,
     keys = tbl_keys,
     each = tbl_each,
     each_key = tbl_each_key,
