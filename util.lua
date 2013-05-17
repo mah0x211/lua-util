@@ -351,6 +351,12 @@ local function path_basename( path, suffix )
     return path;
 end
 
+
+local function path_extname( path )
+    return string.match( path_normalize( path ), '%.[^/.]*$' );
+end
+
+
 local function _isa( ist, ... )
     local argv = {...};
     local argc = #argv;
@@ -417,6 +423,7 @@ return {
     path_normalize = path_normalize,
     path_dirname = path_dirname,
     path_basename = path_basename,
+    path_extname = path_extname,
     is_bool = is_bool,
     is_str = is_str,
     is_num = is_num,
