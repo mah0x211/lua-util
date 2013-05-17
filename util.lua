@@ -334,6 +334,13 @@ local function path_normalize( ... )
     
     return '/' .. table.concat( path, '/' );
 end
+
+
+local function path_dirname( path )
+    return string.match( path_normalize( path ), '^(.+)/[^/]+$' );
+end
+
+
 local function _isa( ist, ... )
     local argv = {...};
     local argc = #argv;
@@ -398,6 +405,7 @@ return {
     split = str_split,
     concat = concat,
     path_normalize = path_normalize,
+    path_dirname = path_dirname,
     is_bool = is_bool,
     is_str = is_str,
     is_num = is_num,
