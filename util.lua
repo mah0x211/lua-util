@@ -341,6 +341,16 @@ local function path_dirname( path )
 end
 
 
+local function path_basename( path, suffix )
+    
+    path = string.match( path_normalize( path ), '^.+/([^/]+)$' );
+    if suffix and suffix ~= path then
+        return string.gsub( path, string.gsub( suffix, '%.', '%%.' ) .. '$', '' );
+    end
+    
+    return path;
+end
+
 local function _isa( ist, ... )
     local argv = {...};
     local argc = #argv;
@@ -406,6 +416,7 @@ return {
     concat = concat,
     path_normalize = path_normalize,
     path_dirname = path_dirname,
+    path_basename = path_basename,
     is_bool = is_bool,
     is_str = is_str,
     is_num = is_num,
