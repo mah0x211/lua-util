@@ -305,58 +305,6 @@ local function concat( ... )
 end
 
 
-local function path_normalize( ... )
-    local argv = {...};
-    local i = 0;
-    local path = nil;
-    local len = nil;
-    
-    if #argv > 1 then
-        path = str_split( table.concat( argv, '/' ), '/' );
-    else
-        path = str_split( argv[1], '/' );
-    end
-    
-    len = #path;
-    while i < len do
-        i = i + 1;
-        if path[i] == nil then
-            break;
-        elseif path[i] == '..' then
-            table.remove( path, i );
-            table.remove( path, i - 1 );
-            i = i - ( i > 1 and 2 or 1 );
-        elseif path[i] == '.' then
-            table.remove( path, i );
-            i = i - 1;
-        end
-    end
-    
-    return '/' .. table.concat( path, '/' );
-end
-
-
-local function path_dirname( path )
-    return string.match( path_normalize( path ), '^(.+)/[^/]+$' );
-end
-
-
-local function path_basename( path, suffix )
-    
-    path = string.match( path_normalize( path ), '^.+/([^/]+)$' );
-    if suffix and suffix ~= path then
-        return string.gsub( path, string.gsub( suffix, '%.', '%%.' ) .. '$', '' );
-    end
-    
-    return path;
-end
-
-
-local function path_extname( path )
-    return string.match( path_normalize( path ), '%.[^/.]*$' );
-end
-
-
 local function _isa( ist, ... )
     local argv = {...};
     local argc = #argv;
@@ -420,10 +368,6 @@ return {
     join = tbl_join,
     split = str_split,
     concat = concat,
-    path_normalize = path_normalize,
-    path_dirname = path_dirname,
-    path_basename = path_basename,
-    path_extname = path_extname,
     is_bool = is_bool,
     is_str = is_str,
     is_num = is_num,
