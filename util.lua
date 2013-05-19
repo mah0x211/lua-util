@@ -106,14 +106,14 @@ local function eperm( tbl, key, val )
             " <" .. tostring(tbl) .. ">", 2 );
 end
 
-local function _tbl_freezing( tbl, act )
+local function _tblFreezing( tbl, act )
     return setmetatable( {}, {
         __index = tbl,
         __newindex = act or eperm
     })
 end
 
-local function _tbl_freeze( tbl, all, act, circular )
+local function _tblFreeze( tbl, all, act, circular )
     if all == true then
         local res = {};
         local k,v = next( tbl );
@@ -124,7 +124,7 @@ local function _tbl_freeze( tbl, all, act, circular )
                 ref = tostring( v );
                 if circular[ref] == nil then
                     circular[ref] = true;
-                    rawset( res, k, _tbl_freeze( v, all, act, circular ) );
+                    rawset( res, k, _tblFreeze( v, all, act, circular ) );
                 end
             else
                 rawset( res, k, v );
@@ -132,18 +132,18 @@ local function _tbl_freeze( tbl, all, act, circular )
             k,v = next( tbl, k );
         end
         
-        return _tbl_freezing( res, act );
+        return _tblFreezing( res, act );
     end
     
-    return _tbl_freezing( tbl, act );
+    return _tblFreezing( tbl, act );
 end
 
-local function tbl_freeze( tbl, all, act )
-    return _tbl_freeze( tbl, all, act, {} );
+local function tblFreeze( tbl, all, act )
+    return _tblFreeze( tbl, all, act, {} );
 end
 
 
-local function tbl_getkv( tbl, ... )
+local function tblGetKV( tbl, ... )
     local argv = {...};
     local argc = #argv;
     local val,i;
@@ -160,7 +160,7 @@ local function tbl_getkv( tbl, ... )
 end
 
 
-local function tbl_setkv( tbl, ... )
+local function tblSetKV( tbl, ... )
     local argv = {...};
     local argc = #argv;
     local prev = tbl;
@@ -185,7 +185,7 @@ local function tbl_setkv( tbl, ... )
 end
 
 
-local function tbl_keys( tbl )
+local function tblKeys( tbl )
     local list = {};
     for k in pairs( tbl ) do
         table.insert( list, k );
@@ -194,7 +194,7 @@ local function tbl_keys( tbl )
 end
 
 
-local function tbl_each( tbl, fn )
+local function tblEach( tbl, fn )
     local k,v = next( tbl );
     
     while k do
@@ -206,7 +206,7 @@ local function tbl_each( tbl, fn )
 end
 
 
-local function tbl_each_key( tbl, fn )
+local function tblEachKey( tbl, fn )
     for k,v in pairs( tbl ) do
         if fn( v, k, tbl ) == false then
             break;
@@ -215,7 +215,7 @@ local function tbl_each_key( tbl, fn )
 end
 
 
-local function tbl_each_idx( tbl, fn )
+local function tblEachIdx( tbl, fn )
     for i,v in ipairs( tbl ) do
         if fn( v, i, tbl ) == false then
             break;
@@ -224,7 +224,7 @@ local function tbl_each_idx( tbl, fn )
 end
 
 
-local function tbl_merge( src, dest, idx )
+local function tblMerge( src, dest, idx )
     local k,v = next( src );
     
     if type( idx ) == 'number' then
@@ -242,7 +242,7 @@ local function tbl_merge( src, dest, idx )
 end
 
 
-local function tbl_join( arr, sep )
+local function tblJoin( arr, sep )
     local res = {};
     local k,v = next( arr );
     local tk,tv;
@@ -261,7 +261,7 @@ local function tbl_join( arr, sep )
 end
 
 
-local function str_split( str, sep )
+local function strSplit( str, sep )
     local res = {};
     
     for seg in string.gmatch( str, '[^' .. sep .. ']+' ) do
@@ -313,10 +313,10 @@ local function _isa( ist, ... )
     if argc < 2 then
         return t == ist;
     elseif t == 'table' then
-        local arg = str_split( argv[2], '.' );
+        local arg = strSplit( argv[2], '.' );
         -- fn.apply( this, args );
         table.insert( arg, 1, argv[1] );
-        arg = tbl_getkv( unpack( arg ) );
+        arg = tblGetKV( unpack( arg ) );
         if type( arg ) ~= ist then
             return false;
         end
@@ -327,53 +327,53 @@ local function _isa( ist, ... )
     return t == ist and argv[1] == argv[2];
 end
 
-local function is_bool( ... )
+local function isBool( ... )
     return _isa( 'boolean', ... );
 end
 
-local function is_str( ... )
+local function isStr( ... )
     return _isa( 'string', ... );
 end
 
-local function is_num( ... )
+local function isNum( ... )
     return _isa( 'number', ... );
 end
 
-local function is_func( ... )
+local function isFunc( ... )
     return _isa( 'function', ... );
 end
 
-local function is_tbl( ... )
+local function isTbl( ... )
     return _isa( 'table', ... );
 end
 
-local function is_thd( ... )
+local function isThd( ... )
     return _isa( 'thread', ... );
 end
 
-local function is_udata( ... )
+local function isUdata( ... )
     return _isa( 'userdata', ... );
 end
 
 
 return {
-    freeze = tbl_freeze,
-    getkv = tbl_getkv,
-    setkv = tbl_setkv,
-    keys = tbl_keys,
-    each = tbl_each,
-    each_key = tbl_each_key,
-    each_idx = tbl_each_idx,
-    merge = tbl_merge,
-    join = tbl_join,
-    split = str_split,
+    freeze = tblFreeze,
+    getKV = tblGetKV,
+    setKV = tblSetKV,
+    keys = tblKeys,
+    each = tblEach,
+    eachKey = tblEachKey,
+    eachIdx = tblEachIdx,
+    merge = tblMerge,
+    join = tblJoin,
+    split = strSplit,
     concat = concat,
-    is_bool = is_bool,
-    is_str = is_str,
-    is_num = is_num,
-    is_func = is_func,
-    is_tbl = is_tbl,
-    is_thd = is_thd,
-    is_udata = is_udata,
+    isBool = isBool,
+    isStr = isStr,
+    isNum = isNum,
+    isFunc = isFunc,
+    isTbl = isTbl,
+    isThd = isThd,
+    isUdata = isUdata,
     inspect = inspect
 };
