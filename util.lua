@@ -21,6 +21,9 @@
   THE SOFTWARE.
 
 --]]
+-- constants
+local INFINITE_POS = math.huge;
+local INFINITE_NEG = -INFINITE_POS;
 
 local function _inspect( obj, indent, nestIndent, tail, circular )
     local res = {};
@@ -355,6 +358,16 @@ local function isUdata( ... )
     return _isa( 'userdata', ... );
 end
 
+local function isFinite( arg )
+    return type( arg ) == 'number' and 
+           arg < INFINITE_POS and 
+           arg > INFINITE_NEG;
+end
+
+local function isNaN( arg )
+    return arg ~= arg and type( arg ) == 'number';
+end
+
 
 return {
     freeze = tblFreeze,
@@ -375,5 +388,7 @@ return {
     isTbl = isTbl,
     isThd = isThd,
     isUdata = isUdata,
+    isFinite = isFinite,
+    isNaN = isNaN,
     inspect = inspect
 };
