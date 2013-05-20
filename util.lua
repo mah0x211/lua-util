@@ -365,7 +365,7 @@ local function isFinite( arg )
 end
 
 local function isNaN( arg )
-    return arg ~= arg and type( arg ) == 'number';
+    return arg ~= arg;
 end
 
 
