@@ -368,6 +368,10 @@ local function isNaN( arg )
     return arg ~= arg;
 end
 
+local function isNon( arg )
+    return ( not arg or arg == 0 or arg == '' or arg ~= arg );
+end
+
 
 return {
     freeze = tblFreeze,
@@ -390,5 +394,6 @@ return {
     isUdata = isUdata,
     isFinite = isFinite,
     isNaN = isNaN,
+    isNon = isNon,
     inspect = inspect
 };
