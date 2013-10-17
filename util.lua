@@ -275,6 +275,10 @@ local function strSplit( str, sep )
 end
 
 
+local function strTrim( str )
+    return string.match( str, '([^%s].+[^%s])' );
+end
+
 local function concat( ... )
     local res = {};
     local args = {...};
@@ -384,6 +388,7 @@ return {
     merge = tblMerge,
     join = tblJoin,
     split = strSplit,
+    trim = strTrim,
     concat = concat,
     isBool = isBool,
     isStr = isStr,
