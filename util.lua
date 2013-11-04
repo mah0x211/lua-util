@@ -266,6 +266,7 @@ end
 
 local function strSplit( str, sep )
     local res = {};
+    local seg;
     
     for seg in string.gmatch( str, '[^' .. sep .. ']+' ) do
         table.insert( res, seg );
