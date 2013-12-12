@@ -312,24 +312,19 @@ end
 
 local function _isa( ist, ... )
     local argv = {...};
-    local argc = #argv;
-    local t = type( argv[1] );
+    local i;
     
-    if argc < 2 then
-        return t == ist;
-    elseif t == 'table' then
-        local arg = strSplit( argv[2], '.' );
-        -- fn.apply( this, args );
-        table.insert( arg, 1, argv[1] );
-        arg = tblGetKV( unpack( arg ) );
-        if type( arg ) ~= ist then
-            return false;
+    if #argv < 1 then
+        return false;
+    else
+        for i = 1, #argv do
+            if ist ~= type( argv[i] ) then
+                return false;
+            end
         end
-        
-        return argc < 3 or arg == argv[3];
     end
     
-    return t == ist and argv[1] == argv[2];
+    return true;
 end
 
 local function isBool( ... )
@@ -360,18 +355,57 @@ local function isUdata( ... )
     return _isa( 'userdata', ... );
 end
 
-local function isFinite( arg )
-    return type( arg ) == 'number' and 
-           arg < INFINITE_POS and 
-           arg > INFINITE_NEG;
+local function isFinite( ... )
+    local argv = {...};
+    local arg, i;
+    
+    if #argv < 1 then
+        return false;
+    else
+        for i = 1, #argv do
+            arg = argv[i];
+            if type( arg ) ~= 'number' or
+               not( arg < INFINITE_POS and arg > INFINITE_NEG ) then
+                return false;
+            end
+        end
+    end
+    
+    return true;
 end
 
-local function isNaN( arg )
-    return arg ~= arg;
+local function isNaN( ... )
+    local argv = {...};
+    local arg, i;
+    
+    if #argv < 1 then
+        return false;
+    else
+        for i = 1, #argv do
+            arg = argv[i];
+            if not ( arg ~= arg ) then
+                return false;
+            end
+        end
+    end
+    
+    return true;
 end
 
-local function isNon( arg )
-    return ( not arg or arg == 0 or arg == '' or arg ~= arg );
+local function isNon( ... )
+    local argv = {...};
+    local arg, i;
+    
+    for i = 1, #argv do
+        arg = argv[i];
+        if arg and arg ~= 0 and arg ~= '' and not( arg ~= arg ) then
+            if arg ~= nil and arg ~= false then
+                return false;
+            end
+        end
+    end
+    
+    return true;
 end
 
 
