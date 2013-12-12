@@ -170,19 +170,16 @@ local function tblSetKV( tbl, ... )
     local val;
     
     for i = 1, argc - 1, 1 do
+        tbl = prev;
         val = prev[argv[i]];
         if type( val ) ~= 'table' then
-            for i = i, argc - 1, 1 do
-                val = {};
-                prev[argv[i]] = val;
-                prev = val;
-            end
-            break;
+            val = {};
+            prev[argv[i]] = val;
         end
         prev = val;
     end
     
-    prev[argc] = argv[argc];
+    tbl[argv[argc-1]] = argv[argc];
     
     return prev;
 end
