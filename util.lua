@@ -146,42 +146,31 @@ local function tblFreeze( tbl, all, act )
 end
 
 
-local function tblGetKV( tbl, ... )
-    local argv = {...};
-    local argc = #argv;
-    local val,i;
+local function tblGetKV( tbl, key )
     
-    for i = 1, argc - 1, 1 do
-        val = tbl[argv[i]];
-        if type( val ) ~= 'table' then
-            return nil;
-        end
-        tbl = val;
-    end
+    key:gsub( '([^.]+)', function( k )
+        tbl = type( tbl ) == 'table' and tbl[k] or nil;
+    end);
     
-    return tbl[argv[argc]];
+    return tbl;
 end
 
 
-local function tblSetKV( tbl, ... )
-    local argv = {...};
-    local argc = #argv;
+local function tblSetKV( tbl, key, val )
     local prev = tbl;
-    local val;
     
-    for i = 1, argc - 1, 1 do
+    key:gsub( '([^.]+)', function( k )
+        key = k;
         tbl = prev;
-        val = prev[argv[i]];
-        if type( val ) ~= 'table' then
-            val = {};
-            prev[argv[i]] = val;
+        if type( tbl[k] ) == 'table' then
+            prev = tbl[k];
+        else
+            prev = {};
+            tbl[k] = prev;
         end
-        prev = val;
-    end
+    end);
     
-    tbl[argv[argc-1]] = argv[argc];
-    
-    return prev;
+    tbl[key] = val;
 end
 
 
