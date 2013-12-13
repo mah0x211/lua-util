@@ -149,6 +149,9 @@ end
 local function tblGetKV( tbl, key )
     
     key:gsub( '([^.]+)', function( k )
+        if k:match('^%d+$') then
+            k = tonumber( k );
+        end
         tbl = type( tbl ) == 'table' and tbl[k] or nil;
     end);
     
@@ -160,6 +163,9 @@ local function tblSetKV( tbl, key, val )
     local prev = tbl;
     
     key:gsub( '([^.]+)', function( k )
+        if k:match('^%d+$') then
+            k = tonumber( k );
+        end
         key = k;
         tbl = prev;
         if type( tbl[k] ) == 'table' then
