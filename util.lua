@@ -146,6 +146,35 @@ local function tblFreeze( tbl, all, act )
 end
 
 
+local function _tblToArray( arr, prefix, tbl, circular )
+    local k,v = next( tbl );
+    local ref;
+    
+    prefix = prefix and prefix .. '.' or '';
+    while k do
+        if type( v ) == 'table' then
+            ref = tostring( v );
+            if not circular[ref] then
+                circular[ref] = true;
+                _tblToArray( arr, prefix .. k, v, circular );
+            end
+        else
+            rawset( arr, prefix .. k, v );
+        end
+        k, v = next( tbl, k );
+    end
+end
+
+
+local function tblToArray( tbl )
+    local arr = {};
+    
+    _tblToArray( arr, nil, tbl, {} );
+    
+    return arr;
+end
+
+
 local function tblGetKV( tbl, key )
     
     key:gsub( '([^.]+)', function( k )
@@ -406,6 +435,7 @@ end
 
 return {
     freeze = tblFreeze,
+    toArray = tblToArray,
     getKV = tblGetKV,
     setKV = tblSetKV,
     keys = tblKeys,
