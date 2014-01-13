@@ -178,10 +178,13 @@ end
 local function tblGetKV( tbl, key )
     
     key:gsub( '([^.]+)', function( k )
-        if k:match('^%d+$') then
-            k = tonumber( k );
+        if type( tbl ) == 'table' then
+            if k:match('^%d+$') then
+                tbl = tbl[k] or tbl[tonumber( k )];
+            else
+                tbl = tbl[k];
+            end
         end
-        tbl = type( tbl ) == 'table' and tbl[k] or nil;
     end);
     
     return tbl;
