@@ -145,9 +145,9 @@ local function tblFreeze( tbl, all, act )
     return _tblFreeze( tbl, all, act, {} );
 end
 
-
-local function _tblToArray( arr, prefix, tbl, circular )
+local function _tblToFlat( arr, prefix, tbl, circular )
     local k,v = next( tbl );
+    local nset = 0;
     local ref;
     
     prefix = prefix and prefix .. '.' or '';
@@ -156,20 +156,47 @@ local function _tblToArray( arr, prefix, tbl, circular )
             ref = tostring( v );
             if not circular[ref] then
                 circular[ref] = true;
-                _tblToArray( arr, prefix .. k, v, circular );
+                if _tblToFlat( arr, prefix .. k, v, circular ) > 0 then
+                    goto NEXT;
+                end
             end
-        else
-            rawset( arr, prefix .. k, v );
         end
+        nset = nset + 1;
+        rawset( arr, prefix .. k, v );
+        
+        ::NEXT::
         k, v = next( tbl, k );
     end
+    
+    return nset;
 end
 
 
-local function tblToArray( tbl )
+local function tblToFlat( tbl )
     local arr = {};
     
-    _tblToArray( arr, nil, tbl, {} );
+    _tblToFlat( arr, nil, tbl, {} );
+    
+    return arr;
+end
+
+
+local function tblToArray( tbl, flat )
+    local arr = {};
+    local k, v;
+    local i = 0;
+    
+    if flat then
+        tbl = tblToFlat( tbl );
+    end
+    
+    for k, v in pairs( tbl ) do
+        i = i + 1;
+        arr[#arr+1] = {
+            key = k,
+            val = v
+        };
+    end
     
     return arr;
 end
@@ -438,6 +465,7 @@ end
 
 return {
     freeze = tblFreeze,
+    toFlat = tblToFlat,
     toArray = tblToArray,
     getKV = tblGetKV,
     setKV = tblSetKV,
