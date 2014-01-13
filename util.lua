@@ -146,9 +146,8 @@ local function tblFreeze( tbl, all, act )
     return _tblFreeze( tbl, all, act, {} );
 end
 
-local function _tblToFlat( arr, prefix, tbl, circular )
+local function _tblToFlat( arr, prefix, tbl, circular, flatLv, lv )
     local k,v = next( tbl );
-    local nset = 0;
     local ref;
     
     prefix = prefix and prefix .. '.' or '';
@@ -156,39 +155,45 @@ local function _tblToFlat( arr, prefix, tbl, circular )
         if type( v ) == 'table' then
             ref = tostring( v );
             if not circular[ref] then
-                circular[ref] = true;
-                if _tblToFlat( arr, prefix .. k, v, circular ) > 0 then
-                    goto NEXT;
+                -- set value
+                if flatLv > 0 and flatLv < lv then
+                    rawset( arr, prefix .. k, v );
                 end
+                -- set address
+                rawset( circular, ref, true );
+                _tblToFlat( arr, prefix .. k, v, circular, flatLv, lv + 1 );
+                -- remove address
+                rawset( circular, ref, nil );
             end
+        else
+            rawset( arr, prefix .. k, v );
         end
-        nset = nset + 1;
-        rawset( arr, prefix .. k, v );
         
-        ::NEXT::
         k, v = next( tbl, k );
     end
-    
-    return nset;
 end
 
 
-local function tblToFlat( tbl )
+local function tblToFlat( tbl, lv )
     local arr = {};
     
-    _tblToFlat( arr, nil, tbl, {} );
+    if type( lv ) ~= 'number' then
+        lv = -1;
+    end
+    
+    _tblToFlat( arr, nil, tbl, {}, lv, 2 );
     
     return arr;
 end
 
 
-local function tblToArray( tbl, flat )
+local function tblToArray( tbl, flatLv )
     local arr = {};
     local k, v;
     local i = 0;
     
-    if flat then
-        tbl = tblToFlat( tbl );
+    if flatLv then
+        tbl = tblToFlat( tbl, flatLv );
     end
     
     for k, v in pairs( tbl ) do
