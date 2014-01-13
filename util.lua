@@ -79,6 +79,7 @@ local function _inspect( obj, indent, nestIndent, tail, circular )
                 nestTail = ',';
             end
             
+            rawset( circular, ref, nil );
             table.insert( res, tail );
         end
     elseif t == 'string' then
