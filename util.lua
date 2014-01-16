@@ -188,6 +188,47 @@ local function tblToFlat( tbl, lv )
 end
 
 
+local function _tblToDrildown( arr, prefix, tbl, circular, flatLv, lv )
+    local k,v = next( tbl );
+    local ref;
+    
+    prefix = prefix and prefix .. '.' or '';
+    while k do
+        if type( v ) == 'table' then
+            ref = tostring( v );
+            if not circular[ref] then
+                -- set value
+                if flatLv > 0 and flatLv < lv then
+                    rawset( arr, prefix .. k, v );
+                end
+                -- set address
+                rawset( circular, ref, true );
+                _tblToDrildown( arr, prefix .. k, v, circular, flatLv, lv + 1 );
+                -- remove address
+                rawset( circular, ref, nil );
+            end
+        else
+            rawset( arr, prefix .. k, v );
+        end
+        
+        k, v = next( tbl, k );
+    end
+end
+
+
+local function tblToDrilldown( tbl, lv )
+    local arr = {};
+    
+    if type( lv ) ~= 'number' then
+        lv = 0;
+    end
+    
+    _tblToDrildown( arr, nil, tbl, {}, lv, 2 );
+    
+    return arr;
+end
+
+
 local function tblToArray( tbl )
     local arr = {};
     local k, v;
@@ -469,6 +510,7 @@ end
 return {
     freeze = tblFreeze,
     toFlat = tblToFlat,
+    toDrilldown = tblToDrilldown,
     toArray = tblToArray,
     getKV = tblGetKV,
     setKV = tblSetKV,
