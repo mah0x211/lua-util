@@ -158,12 +158,13 @@ local function _tblToFlat( arr, prefix, tbl, circular, flatLv, lv )
                 -- set value
                 if flatLv > 0 and flatLv < lv then
                     rawset( arr, prefix .. k, v );
+                else
+                    -- set address
+                    rawset( circular, ref, true );
+                    _tblToFlat( arr, prefix .. k, v, circular, flatLv, lv + 1 );
+                    -- remove address
+                    rawset( circular, ref, nil );
                 end
-                -- set address
-                rawset( circular, ref, true );
-                _tblToFlat( arr, prefix .. k, v, circular, flatLv, lv + 1 );
-                -- remove address
-                rawset( circular, ref, nil );
             end
         else
             rawset( arr, prefix .. k, v );
@@ -178,7 +179,7 @@ local function tblToFlat( tbl, lv )
     local arr = {};
     
     if type( lv ) ~= 'number' then
-        lv = -1;
+        lv = 0;
     end
     
     _tblToFlat( arr, nil, tbl, {}, lv, 2 );
