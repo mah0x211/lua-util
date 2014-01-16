@@ -188,14 +188,10 @@ local function tblToFlat( tbl, lv )
 end
 
 
-local function tblToArray( tbl, flatLv )
+local function tblToArray( tbl )
     local arr = {};
     local k, v;
     local i = 0;
-    
-    if flatLv then
-        tbl = tblToFlat( tbl, flatLv );
-    end
     
     for k, v in pairs( tbl ) do
         i = i + 1;
