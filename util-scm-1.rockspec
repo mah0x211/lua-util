@@ -16,7 +16,7 @@ dependencies = {
 build = {
     type = "builtin",
     modules = {
-        util = "util.lua"
+        util = "lib/util.lua",
     }
 }
 
