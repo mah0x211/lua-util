@@ -17,6 +17,7 @@ build = {
     type = "builtin",
     modules = {
         util = "lib/util.lua",
+        ["util.typeof"] = "lib/typeof.lua",
         ["util.string"] = "lib/string.lua",
     }
 }

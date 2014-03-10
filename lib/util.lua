@@ -21,9 +21,6 @@
   THE SOFTWARE.
 
 --]]
--- constants
-local INFINITE_POS = math.huge;
-local INFINITE_NEG = -INFINITE_POS;
 
 local function _inspect( obj, indent, nestIndent, tail, circular )
     local res = {};
@@ -393,105 +390,6 @@ local function concat( ... )
 end
 
 
-local function _isa( ist, ... )
-    local argv = {...};
-    local i;
-    
-    if #argv < 1 then
-        return false;
-    else
-        for i = 1, #argv do
-            if ist ~= type( argv[i] ) then
-                return false;
-            end
-        end
-    end
-    
-    return true;
-end
-
-local function isBool( ... )
-    return _isa( 'boolean', ... );
-end
-
-local function isStr( ... )
-    return _isa( 'string', ... );
-end
-
-local function isNum( ... )
-    return _isa( 'number', ... );
-end
-
-local function isFunc( ... )
-    return _isa( 'function', ... );
-end
-
-local function isTbl( ... )
-    return _isa( 'table', ... );
-end
-
-local function isThd( ... )
-    return _isa( 'thread', ... );
-end
-
-local function isUdata( ... )
-    return _isa( 'userdata', ... );
-end
-
-local function isFinite( ... )
-    local argv = {...};
-    local arg, i;
-    
-    if #argv < 1 then
-        return false;
-    else
-        for i = 1, #argv do
-            arg = argv[i];
-            if type( arg ) ~= 'number' or
-               not( arg < INFINITE_POS and arg > INFINITE_NEG ) then
-                return false;
-            end
-        end
-    end
-    
-    return true;
-end
-
-local function isNaN( ... )
-    local argv = {...};
-    local arg, i;
-    
-    if #argv < 1 then
-        return false;
-    else
-        for i = 1, #argv do
-            arg = argv[i];
-            if not ( arg ~= arg ) then
-                return false;
-            end
-        end
-    end
-    
-    return true;
-end
-
-local function isNon( ... )
-    local argv = {...};
-    local arg, i;
-    
-    for i = 1, #argv do
-        arg = argv[i];
-        if arg and arg ~= 0 and arg ~= '' and not( arg ~= arg ) then
-            if arg ~= nil and arg ~= false then
-                return false;
-            end
-        end
-    end
-    
-    return true;
-end
-
-
 return {
     freeze = tblFreeze,
     toFlat = tblToFlat,
@@ -506,17 +404,7 @@ return {
     merge = tblMerge,
     join = tblJoin,
     concat = concat,
-    isBool = isBool,
-    isStr = isStr,
-    isNum = isNum,
-    isFunc = isFunc,
-    isTbl = isTbl,
-    isThd = isThd,
-    isUdata = isUdata,
-    isFinite = isFinite,
-    isNaN = isNaN,
-    isNon = isNon,
     inspect = inspect,
-    ['string'] = require('util.string')
-    
+    typeof = require('util.typeof'),
+    ['string'] = require('util.string'),
 };
