@@ -359,21 +359,6 @@ local function tblJoin( arr, sep )
 end
 
 
-local function strSplit( str, sep )
-    local res = {};
-    local seg;
-    
-    for seg in string.gmatch( str, '[^' .. sep .. ']+' ) do
-        table.insert( res, seg );
-    end
-    
-    return res;
-end
-
-
-local function strTrim( str )
-    return string.match( str, '([^%s].+[^%s])' );
-end
 
 local function concat( ... )
     local res = {};
@@ -520,8 +505,6 @@ return {
     eachIdx = tblEachIdx,
     merge = tblMerge,
     join = tblJoin,
-    split = strSplit,
-    trim = strTrim,
     concat = concat,
     isBool = isBool,
     isStr = isStr,
@@ -533,5 +516,7 @@ return {
     isFinite = isFinite,
     isNaN = isNaN,
     isNon = isNon,
-    inspect = inspect
+    inspect = inspect,
+    ['string'] = require('util.string')
+    
 };
