@@ -19,6 +19,7 @@ build = {
         util = "lib/util.lua",
         ["util.typeof"] = "lib/typeof.lua",
         ["util.string"] = "lib/string.lua",
+        ["util.table"] = "lib/table.lua"
     }
 }
 
