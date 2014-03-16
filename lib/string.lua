@@ -34,21 +34,23 @@ end
 
 local function split( self, delim )
     local arr = {};
-    local last = #self;
+    local last = #self + 1;
     local len = 0;
     local cur = 1;
     local head, tail = self:find( delim, cur );
     
     while head do
-        len = len + 1;
         if head ~= cur then
+            len = len + 1;
             rawset( arr, len, self:sub( cur, head - 1 ) );
         end
         cur = tail + 1;
         head, tail = self:find( delim, cur );
     end
     
-    rawset( arr, len + 1, self:sub( cur ) );
+    if cur < last then
+        rawset( arr, len + 1, self:sub( cur ) );
+    end
     
     return arr;
 end
