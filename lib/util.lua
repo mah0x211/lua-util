@@ -22,82 +22,112 @@
 
 --]]
 
-local function _inspect( obj, indent, nestIndent, tail, circular )
-    local res = {};
-    local t = type( obj );
+local LUA_FIELDNAME_PAT = '^[a-zA-Z_][a-zA-Z0-9_]*$';
+local FOR_INDEX = 'index';
+local FOR_VALUE = 'value';
+local FOR_CIRCULAR = 'circular';
+-- default indentaion
+local INDENT_LV = 4;
+
+local function defaultCallback( value, valueType, valueFor, key, udata )
+    return val;
+end
+
+
+local function _inspect( obj, indent, nestIndent, tail, ctx )
+    local ref = tostring( obj );
+    local val;
     
-    if t == 'table' then
+    -- circular reference
+    if not ctx.circular[ref] then
+        local res = {};
         local k,v = next( obj );
         local nestTail = '';
-        local ref = tostring( obj );
-        local tk;
+        local t, skip, raw;
         
-        -- circular reference
-        if circular[ref] then
-            table.insert( res, '"<Circular ' .. ref .. '>"' );
-        else
-            -- save reference
-            rawset( circular, ref, true );
-            table.insert( res, '{ ' );
-            tail = ( k and '\n' .. indent or '' ) .. '}';
-            
-            while k do
-                tk = type( k );
-                if tk == 'string' then
-                    -- if standard name rule
-                    if string.match( k, '^[a-zA-Z_][a-zA-Z0-9_]*$' ) then
-                        table.insert( res, nestTail .. '\n' .. indent .. 
-                                      nestIndent .. k .. ' = ' );
-                    -- add bracket
-                    else
-                        table.insert( res, nestTail .. '\n' .. indent .. 
-                                      nestIndent ..'["' .. k .. '"] = ' );
-                    end
-                elseif tk == 'number' then
-                    table.insert( res, nestTail .. '\n' .. indent .. nestIndent );
+        -- save reference
+        rawset( ctx.circular, ref, true );
+        -- set head and tail bracket
+        table.insert( res, '{ ' );
+        tail = ( k and '\n' .. indent or '' ) .. '}';
+        
+        while k do
+            -- key
+            val, skip = ctx.callback( k, type( k ), FOR_INDEX, nil, ctx.udata );
+            k = val or k;
+            if not skip then
+                t = type( k );
+                -- hash index
+                -- array index
+                if t == 'number' then
+                    table.insert( res, 
+                        nestTail .. '\n' .. indent .. nestIndent 
+                    );
+                -- standard name
+                elseif t == 'string' and k:match( LUA_FIELDNAME_PAT ) then
+                    table.insert( res, 
+                        nestTail .. '\n' .. indent .. nestIndent .. k .. ' = ' 
+                    );
+                -- add bracket
                 else
-                    table.insert( res, nestTail .. '\n' .. indent .. nestIndent ..
-                                  '["' .. tostring( k ) .. '"]' );
+                    table.insert( res, 
+                        nestTail .. '\n' .. indent .. nestIndent ..
+                        '["' .. tostring( k ) .. '"] = ' );
                 end
                 
+                -- value
+                val, raw = ctx.callback( v, type( v ), FOR_VALUE, k, ctx.udata );
+                v = val or v;
                 t = type( v );
-                if t == 'table' then
-                    table.insert( res, _inspect( v, indent .. nestIndent, nestIndent, ',', circular ) );
+                -- raw value
+                if raw then
+                    table.insert( res, v );
+                elseif t == 'table' then
+                    table.insert( res, 
+                        _inspect( v, indent .. nestIndent, nestIndent, ',', ctx )
+                    );
                 elseif t == 'string' then
                     table.insert( res, '"' .. v .. '"' );
                 elseif t == 'number' then
-                    table.insert( res, tostring( v ) );
+                    table.insert( res, v );
                 else
                     table.insert( res, '"' .. tostring( v ) .. '"' );
                 end
-                
-                -- next item
-                k,v = next( obj,k );
-                nestTail = ',';
             end
-            
-            rawset( circular, ref, nil );
-            table.insert( res, tail );
+                
+            -- next item
+            k,v = next( obj, k );
+            nestTail = ',';
         end
-    elseif t == 'string' then
-        table.insert( res, indent .. obj .. tail );
-    else
-        table.insert( res, indent .. tostring( obj ) .. tail );
+        
+        -- remove reference
+        rawset( ctx.circular, ref, nil );
+        -- append tail
+        table.insert( res, tail );
+        
+        return table.concat( res, '' );
     end
     
-    return table.concat( res, '' );
+    val = ctx.callback( obj, type( obj ), FOR_CIRCULAR, obj, ctx.udata );
+    return type( val ) == 'table' and '"<Circular ' .. ref .. '>"' or val;
 end
 
-local function inspect( obj, indent_lv )
-    local indent = '';
-    local i = 0;
+
+local function inspect( obj, opt )
+    local t = type( obj );
     
-    indent_lv = indent_lv or 4;
-    for i = 0, indent_lv - 1, 1 do
-        indent = indent .. ' ';
+    if t == 'table' then
+        local indent = ('%'.. ( opt and opt.depth or INDENT_LV ) ..'s'):format('');
+        local padding = ('%'.. ( opt and opt.padding or 0 ) ..'s'):format('');
+        
+        return _inspect( obj, padding, indent, '', {
+            circular = {},
+            callback = opt and opt.callback or defaultCallback,
+            udata = opt and opt.udata or nil
+        });
     end
     
-    return _inspect( obj, '', indent, '', {} );
+    return opt and opt.callback( val, t, FOR_VALUE, false ) or tostring( obj );
 end
 
 
