@@ -167,6 +167,7 @@ end
 
 local function _enumerate( res, tbl, toFlat, flatLv, lv, circular, prefix )
     local k,v = next( tbl );
+    local NEXT_ITEM = false;
     local ref;
     
     prefix = prefix and prefix .. '.' or '';
@@ -176,26 +177,27 @@ local function _enumerate( res, tbl, toFlat, flatLv, lv, circular, prefix )
             ref = tostring( v );
             if circular[ref] then
                 rawset( res, prefix .. k, v );
+            -- set value
             else
-                -- set value
                 if flatLv > 0 and flatLv < lv then
                     rawset( res, prefix .. k, v );
-                    if toFlat == true then
-                        goto NEXT_ITEM;
-                    end
+                    NEXT_ITEM = toFlat;
                 end
                 
-                -- set address
-                rawset( circular, ref, true );
-                _enumerate( res, v, toFlat, flatLv, lv + 1, circular, prefix .. k );
-                -- remove address
-                rawset( circular, ref, nil );
+                if NEXT_ITEM then
+                    NEXT_ITEM = false;
+                else
+                    -- set address
+                    rawset( circular, ref, true );
+                    _enumerate( res, v, toFlat, flatLv, lv + 1, circular, prefix .. k );
+                    -- remove address
+                    rawset( circular, ref, nil );
+                end
             end
         else
             rawset( res, prefix .. k, v );
         end
         
-        ::NEXT_ITEM::
         k, v = next( tbl, k );
     end
     
