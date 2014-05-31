@@ -61,7 +61,8 @@ local function _inspect( obj, indent, nestIndent, tail, ctx )
                 -- array index
                 if t == 'number' then
                     table.insert( res, 
-                        nestTail .. '\n' .. indent .. nestIndent 
+                        nestTail .. '\n' .. indent .. nestIndent .. 
+                        '['.. k ..'] = '
                     );
                 -- standard name
                 elseif t == 'string' and k:match( LUA_FIELDNAME_PAT ) then
