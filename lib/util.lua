@@ -89,8 +89,8 @@ local function _inspect( obj, indent, nestIndent, tail, ctx )
                     );
                 elseif t == 'string' then
                     table.insert( res, '"' .. v .. '"' );
-                elseif t == 'number' then
-                    table.insert( res, v );
+                elseif t == 'number' or t == 'boolean' then
+                    table.insert( res, tostring(v) );
                 else
                     table.insert( res, '"' .. tostring( v ) .. '"' );
                 end
