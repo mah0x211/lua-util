@@ -29,6 +29,10 @@ local function typeof( cmp, arg )
     return cmp == type( arg );
 end
 
+local function typeofNil( ... )
+    return typeof( 'nil', ... );
+end
+
 local function typeofBoolean( ... )
     return typeof( 'boolean', ... );
 end
@@ -71,6 +75,7 @@ end
 
 
 local EXPORT = {
+    ['nil'] = typeofNil,
     ['boolean'] = typeofBoolean,
     ['string'] = typeofString,
     ['number'] = typeofNumber,
@@ -80,7 +85,10 @@ local EXPORT = {
     ['userdata'] = typeofUserdata,
     ['finite'] = typeofFinite,
     ['nan'] = typeofNaN,
-    ['non'] = typeofNon
+    ['non'] = typeofNon,
+    -- alias
+    ['Nil'] = typeofNil,
+    ['Function'] = typeofFunction
 };
 
 do
