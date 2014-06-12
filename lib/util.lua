@@ -88,11 +88,11 @@ local function _inspect( obj, indent, nestIndent, tail, ctx )
                         _inspect( v, indent .. nestIndent, nestIndent, ',', ctx )
                     );
                 elseif t == 'string' then
-                    table.insert( res, '"' .. v .. '"' );
+                    table.insert( res, string.format( '%q', v ) );
                 elseif t == 'number' or t == 'boolean' then
                     table.insert( res, tostring(v) );
                 else
-                    table.insert( res, '"' .. tostring( v ) .. '"' );
+                    table.insert( res, string.format( '%q', tostring( v ) ) );
                 end
             end
                 
