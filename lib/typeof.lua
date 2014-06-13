@@ -24,6 +24,8 @@
 -- constants
 local INFINITE_POS = math.huge;
 local INFINITE_NEG = -INFINITE_POS;
+local type = type;
+local floor = math.floor;
 
 local function typeof( cmp, arg )
     return cmp == type( arg );
@@ -65,6 +67,18 @@ local function typeofFinite( arg )
     return type( arg ) == 'number' and ( arg < INFINITE_POS and arg > INFINITE_NEG );
 end
 
+local function typeofUnsigned( arg )
+    return type( arg ) == 'number' and ( arg < INFINITE_POS and arg >= 0 );
+end
+
+local function typeofInteger( arg )
+    return typeofFinite( arg ) and rawequal( floor( arg ), arg );
+end
+
+local function typeofUnsignedInteger( arg )
+    return typeofUnsigned( arg ) and rawequal( floor( arg ), arg );
+end
+
 local function typeofNaN( arg )
     return arg ~= arg;
 end
@@ -84,6 +98,9 @@ local EXPORT = {
     ['thread'] = typeofThread,
     ['userdata'] = typeofUserdata,
     ['finite'] = typeofFinite,
+    ['unsigned'] = typeofUnsigned,
+    ['int'] = typeofInteger,
+    ['uint'] = typeofUnsignedInteger,
     ['nan'] = typeofNaN,
     ['non'] = typeofNon,
     -- alias
