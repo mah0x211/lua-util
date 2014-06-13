@@ -28,6 +28,34 @@ local FOR_VALUE = 'value';
 local FOR_CIRCULAR = 'circular';
 -- default indentaion
 local INDENT_LV = 4;
+local RESERVED_WORD = {
+    -- primitive data
+    ['nil']         = true,
+    ['true']        = true,
+    ['false']       = true,
+    -- declaraton
+    ['function']    = true,
+    -- boolean logic
+    ['and']         = true,
+    ['or']          = true,
+    ['not']         = true,
+    -- conditional statement
+    ['if']          = true,
+    ['elseif']      = true,
+    ['else']        = true,
+    -- iteration statement
+    ['while']       = true,
+    ['until']       = true,
+    ['repeat']      = true,
+    -- jump statement
+    ['break']       = true,
+    ['goto']        = true,
+    ['return']      = true,
+    -- block scope statement
+    ['then']        = true,
+    ['do']          = true,
+    ['end']         = true
+};
 
 local function defaultCallback( value, valueType, valueFor, key, udata )
     return val;
@@ -65,7 +93,8 @@ local function _inspect( obj, indent, nestIndent, tail, ctx )
                         '['.. k ..'] = '
                     );
                 -- standard name
-                elseif t == 'string' and k:match( LUA_FIELDNAME_PAT ) then
+                elseif t == 'string' and not RESERVED_WORD[k] and
+                       k:match( LUA_FIELDNAME_PAT ) then
                     table.insert( res, 
                         nestTail .. '\n' .. indent .. nestIndent .. k .. ' = ' 
                     );
