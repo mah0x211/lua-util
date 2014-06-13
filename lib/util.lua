@@ -34,6 +34,7 @@ local RESERVED_WORD = {
     ['true']        = true,
     ['false']       = true,
     -- declaraton
+    ['local']       = true,
     ['function']    = true,
     -- boolean logic
     ['and']         = true,
