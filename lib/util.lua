@@ -45,6 +45,8 @@ local RESERVED_WORD = {
     ['elseif']      = true,
     ['else']        = true,
     -- iteration statement
+    ['for']         = true,
+    ['in']          = true,
     ['while']       = true,
     ['until']       = true,
     ['repeat']      = true,
