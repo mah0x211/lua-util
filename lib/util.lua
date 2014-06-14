@@ -59,7 +59,7 @@ local RESERVED_WORD = {
 };
 
 local function defaultCallback( value, valueType, valueFor, key, udata )
-    return val;
+    return value;
 end
 
 
