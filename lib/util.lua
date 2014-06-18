@@ -160,7 +160,7 @@ local function inspect( obj, opt )
         });
     end
     
-    return opt and opt.callback( val, t, FOR_VALUE, false ) or tostring( obj );
+    return opt and opt.callback( obj, t, FOR_VALUE, false ) or tostring( obj );
 end
 
 
