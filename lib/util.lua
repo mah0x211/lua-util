@@ -22,6 +22,7 @@
 
 --]]
 
+local LUA_VERSION = tonumber( _VERSION:match( 'Lua (.+)$' ) );
 local LUA_FIELDNAME_PAT = '^[a-zA-Z_][a-zA-Z0-9_]*$';
 local FOR_INDEX = 'index';
 local FOR_VALUE = 'value';
@@ -164,8 +165,25 @@ local function inspect( obj, opt )
 end
 
 
+local function eval( src, env )
+    local fn, err;
+    
+    if LUA_VERSION > 5.1 then
+        fn, err = load( src, nil, nil, env );
+        assert( not err, err );
+    else
+        fn, err = loadstring( src );
+        assert( not err, err );
+        setfenv( fn, env );
+    end
+    
+    return fn, err;
+end
+
+
 return {
     inspect = inspect,
+    eval = eval,
     ['typeof'] = require('util.typeof'),
     ['string'] = require('util.string'),
     ['table'] = require('util.table')
