@@ -174,7 +174,9 @@ local function eval( src, env )
     else
         fn, err = loadstring( src );
         assert( not err, err );
-        setfenv( fn, env );
+        if env ~= nil then
+            setfenv( fn, env );
+        end
     end
     
     return fn, err;
