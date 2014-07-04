@@ -22,6 +22,7 @@
 
 --]]
 local typeof = require('util.typeof');
+local split = require('util.string').split;
 
 local function copy( tbl )
     local ctbl = {};
@@ -97,26 +98,28 @@ local function keys( tbl )
 end
 
 
-local function get( tbl, key )
+local function get( tbl, key, delim )
+    local _;
     
-    key:gsub( '([^.]+)', function( k )
-        if type( tbl ) == 'table' then
-            if k:match('^%d+$') then
-                tbl = tbl[k] or tbl[tonumber( k )];
-            else
-                tbl = tbl[k];
-            end
+    for _, key in ipairs( split( key, '[' .. ( delim or '.' ) .. ']' ) ) do
+        if type( tbl ) ~= 'table' then
+            return nil;
+        elseif key:match('^%d+$') then
+            tbl = tbl[key] or tbl[tonumber( key )];
+        else
+            tbl = tbl[key];
         end
-    end);
+    end
     
     return tbl;
 end
 
 
-local function set( tbl, key, val )
+local function set( tbl, key, val, delim )
     local prev = tbl;
     
-    key:gsub( '([^.]+)', function( k )
+    delim = delim or '.';
+    key:gsub( '([^' .. delim .. ']+)', function( k )
         if k:match('^%d+$') then
             k = tonumber( k );
         end
