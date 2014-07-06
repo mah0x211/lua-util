@@ -170,10 +170,8 @@ local function eval( src, env )
     
     if LUA_VERSION > 5.1 then
         fn, err = load( src, nil, nil, env );
-        assert( not err, err );
     else
         fn, err = loadstring( src );
-        assert( not err, err );
         if env ~= nil then
             setfenv( fn, env );
         end
