@@ -172,7 +172,7 @@ local function eval( src, env )
         fn, err = load( src, nil, nil, env );
     else
         fn, err = loadstring( src );
-        if env ~= nil then
+        if not err and env ~= nil then
             setfenv( fn, env );
         end
     end
