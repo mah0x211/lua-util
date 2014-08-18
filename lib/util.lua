@@ -165,13 +165,13 @@ local function inspect( obj, opt )
 end
 
 
-local function eval( src, env )
+local function eval( src, env, ident )
     local fn, err;
     
     if LUA_VERSION > 5.1 then
         fn, err = load( src, nil, nil, env );
     else
-        fn, err = loadstring( src );
+        fn, err = loadstring( src, ident );
         if not err and env ~= nil then
             setfenv( fn, env );
         end
