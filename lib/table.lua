@@ -27,7 +27,6 @@ local split = require('util.string').split;
 local function copy( tbl )
     local ctbl = {};
     local len = 0;
-    local k,v;
     
     for k, v in pairs( tbl ) do
         len = len + 1;
@@ -40,7 +39,6 @@ end
 
 local function _clone( tbl, lv )
     local ctbl = {};
-    local k,v;
     
     if lv < 0 or lv > 0 then
         for k, v in pairs( tbl ) do
@@ -85,7 +83,6 @@ end
 local function keys( tbl )
     local res = {};
     local len = 0;
-    local k;
     
     for k in pairs( tbl ) do
         if type( k ) == 'string' then
@@ -139,10 +136,10 @@ end
 
 local function merge( tbl, ... )
     local res, len = copy( tbl );
-    local idx, arg, k, v;
+    local k, v;
     
     -- traverse arguments
-    for idx, arg in ipairs({ ... }) do
+    for _, arg in ipairs({ ... }) do
         -- traverse table
         if type( arg ) == 'table' then
             k, v = next( arg );
@@ -219,7 +216,6 @@ end
 local function align( tbl )
     local arr = {};
     local len = 0;
-    local k, v;
     
     for k, v in pairs( tbl ) do
         len = len + 1;
@@ -266,7 +262,6 @@ end
 
 local function push( tbl, ... )
     local args = {...};
-    local idx;
     
     for idx = 1, #args do
         table.insert( tbl, args[idx] );
@@ -283,7 +278,6 @@ end
 
 local function unshift( tbl, ... )
     local args = {...};
-    local idx;
     
     for idx = 1, #args do
         table.insert( tbl, idx, args[idx] );
@@ -295,7 +289,7 @@ end
 
 local function reverse( tbl )
     local len = #tbl;
-    local idx, ridx;
+    local ridx;
     
     for idx = 1, len/2 do
         ridx = len - idx + 1;
@@ -308,6 +302,7 @@ local function join( tbl, sep )
     local res = {};
     local len = 0;
     local k, v = next( tbl );
+    local t;
     
     while k do
         if type( k ) == 'number' then
@@ -329,7 +324,6 @@ end
 local function slice( tbl, head, tail )
     local res = {};
     local len = #tbl;
-    local cur;
     
     if head < 0 then
         head = len + head + 1;
@@ -500,8 +494,6 @@ local METHODS = {
 local ORG, EXPORT;
 
 local function extend( overwrite )
-    local k,v;
-    
     for k,v in pairs( METHODS ) do
         if not table[k] or overwrite == true then
             table[k] = v;
@@ -514,8 +506,6 @@ local function unextend()
 end
 
 do
-    local k,v;
-    
     ORG = {};
     for k,v in pairs( table ) do
         ORG[k] = v;

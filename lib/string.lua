@@ -65,7 +65,6 @@ local ORG = {};
 
 do
     local mt = debug.getmetatable( '' );
-    local k,v;
     
     for k,v in pairs( mt.__index ) do
         ORG[k] = v;
@@ -74,7 +73,6 @@ end
 
 local function extend( overwrite )
     local mt = debug.getmetatable( '' );
-    local k,v;
     
     for k,v in pairs({
         charAt = charAt,

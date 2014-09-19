@@ -109,7 +109,6 @@ local EXPORT = {
 };
 
 do
-    local key, val;
     local types = {};
     
     for key in pairs( EXPORT ) do
