@@ -226,7 +226,7 @@ local function align( tbl )
 end
 
 
-local function each( fn, tbl, t, ... )
+local function each( tbl, t, fn, ... )
     local k,v = next( tbl );
     
     if t then
@@ -246,12 +246,12 @@ local function each( fn, tbl, t, ... )
     end
 end
 
-local function eachKey( fn, tbl, ... )
-    each( fn, tbl, 'string', ... );
+local function eachKey( tbl, fn, ... )
+    each( tbl, 'string', fn, ... );
 end
 
-local function eachIndex( fn, tbl, ... )
-    each( fn, tbl, 'number', ... );
+local function eachIndex( tbl, fn, ... )
+    each( tbl, 'number', fn, ... );
 end
 
 
@@ -373,7 +373,7 @@ local function indexOf( tbl, val, head )
 end
 
 
-local function every( fn, tbl, ... )
+local function every( tbl, fn, ... )
     local k, v = next( tbl );
     
     while k do
@@ -387,7 +387,7 @@ local function every( fn, tbl, ... )
 end
 
 
-local function some( fn, tbl, ... )
+local function some( tbl, fn, ... )
     local k, v = next( tbl );
     
     while k do
@@ -401,7 +401,7 @@ local function some( fn, tbl, ... )
 end
 
 
-local function filter( fn, tbl, ... )
+local function filter( tbl, fn, ... )
     local res = {};
     local len = 0;
     local k, v = next( tbl );
@@ -418,7 +418,7 @@ local function filter( fn, tbl, ... )
 end
 
 
-local function map( fn, tbl, ... )
+local function map( tbl, fn, ... )
     local res = {};
     local len = 0;
     local k, v = next( tbl );
@@ -438,7 +438,7 @@ local function map( fn, tbl, ... )
 end
 
 
-local function reduce( fn, tbl, initVal, ... )
+local function reduce( tbl, fn, initVal, ... )
     local prev = initVal;
     local k, cur = next( tbl );
     
