@@ -181,9 +181,26 @@ local function eval( src, env, ident )
 end
 
 
+local function evalfile( file, env, mode )
+    local fn, err;
+    
+    if LUA_VERSION > 5.1 then
+        fn, err = loadfile( file, mode, env );
+    else
+        fn, err = loadfile( file );
+        if not err and env ~= nil then
+            setfenv( fn, env );
+        end
+    end
+    
+    return fn, err;
+end
+
+
 return {
     inspect = inspect,
     eval = eval,
+    evalfile = evalfile,
     ['typeof'] = require('util.typeof'),
     ['string'] = require('util.string'),
     ['table'] = require('util.table')
