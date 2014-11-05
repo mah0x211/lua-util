@@ -197,10 +197,29 @@ local function evalfile( file, env, mode )
 end
 
 
+local function getfnenv( fn )
+    if LUA_VERSION > 5.1 then
+        local i = 1;
+        local k, v = debug.getupvalue( fn, i );
+        
+        while k do
+            if k == '_ENV' then
+                return v;
+            end
+            i = i + 1;
+            k, v = debug.getupvalue( fn, i );
+        end
+    else
+        return getfenv( fn );
+    end
+end
+
+
 return {
     inspect = inspect,
     eval = eval,
     evalfile = evalfile,
+    getfenv = getfnenv,
     ['typeof'] = require('util.typeof'),
     ['string'] = require('util.string'),
     ['table'] = require('util.table')
