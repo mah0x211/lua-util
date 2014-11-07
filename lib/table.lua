@@ -42,7 +42,11 @@ local function _clone( tbl, lv )
     
     if lv < 0 or lv > 0 then
         for k, v in pairs( tbl ) do
-            ctbl[k] = type( v ) ~= 'table' and v or _clone( v, lv - 1 );
+            if type( v ) == 'table' then
+                ctbl[k] = _clone( v, lv - 1 );
+            else
+                ctbl[k] = v;
+            end
         end
     else
         ctbl = tbl;
