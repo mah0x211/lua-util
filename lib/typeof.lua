@@ -75,7 +75,7 @@ local function typeofInt( arg )
     return typeofFinite( arg ) and rawequal( floor( arg ), arg );
 end
 
-local function typeofUnsignedInteger( arg )
+local function typeofUInt( arg )
     return typeofUnsigned( arg ) and rawequal( floor( arg ), arg );
 end
 
@@ -99,8 +99,8 @@ local EXPORT = {
     ['userdata'] = typeofUserdata,
     ['finite'] = typeofFinite,
     ['unsigned'] = typeofUnsigned,
-    ['uint'] = typeofUnsignedInteger,
     ['int'] = typeofInt,
+    ['uint'] = typeofUInt,
     ['nan'] = typeofNaN,
     ['non'] = typeofNon,
     -- alias
