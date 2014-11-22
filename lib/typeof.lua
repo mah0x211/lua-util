@@ -75,6 +75,18 @@ local function typeofInt( arg )
     return typeofFinite( arg ) and rawequal( floor( arg ), arg );
 end
 
+local function typeofInt8( arg )
+    return typeofInt( arg ) and arg >= -128 and arg <= 127;
+end
+
+local function typeofInt16( arg )
+    return typeofInt( arg ) and arg >= -32768 and arg <= 32767;
+end
+
+local function typeofInt32( arg )
+    return typeofInt( arg ) and arg >= -2147483648 and arg <= 2147483647;
+end
+
 local function typeofUInt( arg )
     return typeofUnsigned( arg ) and rawequal( floor( arg ), arg );
 end
@@ -100,6 +112,9 @@ local EXPORT = {
     ['finite'] = typeofFinite,
     ['unsigned'] = typeofUnsigned,
     ['int'] = typeofInt,
+    ['int8'] = typeofInt8,
+    ['int16'] = typeofInt16,
+    ['int32'] = typeofInt32,
     ['uint'] = typeofUInt,
     ['nan'] = typeofNaN,
     ['non'] = typeofNon,
