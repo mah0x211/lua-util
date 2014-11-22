@@ -91,6 +91,18 @@ local function typeofUInt( arg )
     return typeofUnsigned( arg ) and rawequal( floor( arg ), arg );
 end
 
+local function typeofUInt8( arg )
+    return typeofUInt( arg ) and arg <= 255;
+end
+
+local function typeofUInt16( arg )
+    return typeofUInt( arg ) and arg <= 65535;
+end
+
+local function typeofUInt32( arg )
+    return typeofUInt( arg ) and arg <= 4294967295;
+end
+
 local function typeofNaN( arg )
     return arg ~= arg;
 end
@@ -116,6 +128,9 @@ local EXPORT = {
     ['int16'] = typeofInt16,
     ['int32'] = typeofInt32,
     ['uint'] = typeofUInt,
+    ['uint8'] = typeofUInt8,
+    ['uint16'] = typeofUInt16,
+    ['uint32'] = typeofUInt32,
     ['nan'] = typeofNaN,
     ['non'] = typeofNon,
     -- alias
