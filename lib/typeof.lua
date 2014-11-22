@@ -71,7 +71,7 @@ local function typeofUnsigned( arg )
     return type( arg ) == 'number' and ( arg < INFINITE_POS and arg >= 0 );
 end
 
-local function typeofInteger( arg )
+local function typeofInt( arg )
     return typeofFinite( arg ) and rawequal( floor( arg ), arg );
 end
 
@@ -99,8 +99,8 @@ local EXPORT = {
     ['userdata'] = typeofUserdata,
     ['finite'] = typeofFinite,
     ['unsigned'] = typeofUnsigned,
-    ['int'] = typeofInteger,
     ['uint'] = typeofUnsignedInteger,
+    ['int'] = typeofInt,
     ['nan'] = typeofNaN,
     ['non'] = typeofNon,
     -- alias
