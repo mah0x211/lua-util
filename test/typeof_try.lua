@@ -1,5 +1,24 @@
 local typeof = require('util.typeof');
-
+local DEFAULT_CMP = {
+    ['nil']         = false,
+    ['non']         = false,
+    ['boolean']     = false,
+    ['string']      = false,
+    ['table']       = false,
+    ['thread']      = false,
+    ['Function']    = false,
+    ['number']      = false,
+    ['finite']      = false,
+    ['unsigned']    = false,
+    ['int']         = false,
+    ['int8']        = false,
+    ['int16']       = false,
+    ['int32']       = false,
+    ['uint']        = false,
+    ['uint8']       = false,
+    ['uint16']      = false,
+    ['uint32']      = false,
+};
 -- types
 local data = {
     -- nil
@@ -43,28 +62,43 @@ local data = {
     -- number
     {   val = 0,
         chk = {
-            ['number']  = true,
-            ['finite']  = true,
-            ['unsigned']= true,
-            ['int']     = true,
-            ['uint']    = true,
-            ['non']     = true 
+            ['number']      = true,
+            ['finite']      = true,
+            ['unsigned']    = true,
+            ['int']         = true,
+            ['int8']        = true,
+            ['int16']       = true,
+            ['int32']       = true,
+            ['uint']        = true,
+            ['uint8']       = true,
+            ['uint16']      = true,
+            ['uint32']      = true,
+            ['non']         = true 
         }
     },
     {   val = 1,
         chk = {
-            ['number']  = true,
-            ['finite']  = true,
-            ['unsigned']= true,
-            ['int']     = true,
-            ['uint']    = true 
+            ['number']      = true,
+            ['finite']      = true,
+            ['unsigned']    = true,
+            ['int']         = true,
+            ['int8']        = true,
+            ['int16']       = true,
+            ['int32']       = true,
+            ['uint']        = true,
+            ['uint8']       = true,
+            ['uint16']      = true,
+            ['uint32']      = true,
         }
     },
     {   val = -1,
         chk = {
-            ['number']  = true,
-            ['finite']  = true,
-            ['int']     = true 
+            ['number']      = true,
+            ['finite']      = true,
+            ['int']         = true,
+            ['int8']        = true,
+            ['int16']       = true,
+            ['int32']       = true,
         }
     },
     {   val = 0.1,
@@ -96,6 +130,9 @@ local data = {
     -- integer
     {   val = -128,
         chk = {
+            ['number']  = true,
+            ['finite']  = true,
+            ['int']     = true,
             ['int8']    = true,
             ['int16']   = true,
             ['int32']   = true 
@@ -103,59 +140,95 @@ local data = {
     },
     {   val = 127,
         chk = {
+            ['number']  = true,
+            ['finite']  = true,
+            ['unsigned']= true,
+            ['int']     = true,
             ['int8']    = true,
             ['int16']   = true,
-            ['int32']   = true 
+            ['int32']   = true,
+            ['uint']    = true,
+            ['uint8']   = true,
+            ['uint16']  = true,
+            ['uint32']  = true,
         }
     },
     {   val = -32768,
         chk = {
-            ['int8']    = false,
+            ['number']  = true,
+            ['finite']  = true,
+            ['int']     = true,
             ['int16']   = true,
-            ['int32']   = true 
+            ['int32']   = true
         }
     },
     {   val = 32767,
         chk = {
-            ['int8']    = false,
+            ['number']  = true,
+            ['finite']  = true,
+            ['unsigned']= true,
+            ['int']     = true,
             ['int16']   = true,
-            ['int32']   = true 
+            ['int32']   = true,
+            ['uint']    = true,
+            ['uint16']  = true,
+            ['uint32']  = true,
         }
     },
     {   val = -2147483648,
         chk = {
-            ['int8']    = false,
-            ['int16']   = false,
+            ['number']  = true,
+            ['finite']  = true,
+            ['int']     = true,
             ['int32']   = true 
         }
     },
     {   val = 2147483647,
         chk = {
-            ['int8']    = false,
-            ['int16']   = false,
-            ['int32']   = true 
+            ['number']  = true,
+            ['finite']  = true,
+            ['unsigned']= true,
+            ['int']     = true,
+            ['int32']   = true,
+            ['uint']    = true,
+            ['uint32']  = true,
         }
     },
     -- unsigned integer
     {   val = 255,
         chk = {
-            ['uint8']    = true,
-            ['uint16']   = true,
-            ['uint32']   = true 
+            ['number']  = true,
+            ['finite']  = true,
+            ['unsigned']= true,
+            ['int']     = true,
+            ['int16']   = true,
+            ['int32']   = true,
+            ['uint']    = true,
+            ['uint8']   = true,
+            ['uint16']  = true,
+            ['uint32']  = true 
         }
     },
     {   val = 65535,
         chk = {
-            ['uint8']    = false,
-            ['uint16']   = true,
-            ['uint32']   = true 
+            ['number']  = true,
+            ['finite']  = true,
+            ['unsigned']= true,
+            ['int']     = true,
+            ['int32']   = true,
+            ['uint']    = true,
+            ['uint16']  = true,
+            ['uint32']  = true
         }
     },
     {   val = 4294967295,
         chk = {
-            ['uint8']    = false,
-            ['uint16']   = false,
-            ['uint32']   = true 
+            ['number']  = true,
+            ['finite']  = true,
+            ['unsigned']= true,
+            ['int']     = true,
+            ['uint']    = true,
+            ['uint32']  = true 
         }
     },
     
@@ -184,7 +257,10 @@ local nilVal;
 local msg;
 
 for _, field in ipairs( data ) do 
-    for method, res in pairs( field.chk ) do
+    for method, res in pairs( DEFAULT_CMP ) do
+        if field.chk[method] ~= nil then
+            res = field.chk[method];
+        end
         msg = ('typeof.%s( %s ) == %s'):format( 
             method, tostring( field.val ), tostring( res )
         );
