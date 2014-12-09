@@ -57,7 +57,7 @@ end
 
 
 local function trim( self )
-    return self:match( '^[%s]*(.*[^%s])[%s]*$' );
+    return self:match( '^[%s]*(.*[^%s])[%s]*$' ) or '';
 end
 
 
