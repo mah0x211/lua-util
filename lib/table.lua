@@ -259,6 +259,22 @@ local function eachIndex( tbl, fn, ... )
 end
 
 
+-- find last index number
+local function lastIndex( tbl )
+    local idx, _ = next( tbl );
+    local tail;
+    
+    while idx do
+        if type( idx ) == 'number' then
+            tail = idx;
+        end
+        idx, _ = next( tbl, idx );
+    end
+    
+    return tail;
+end
+
+
 local function pop( tbl )
     return table.remove( tbl );
 end
@@ -481,6 +497,7 @@ local METHODS = {
     eachKey = eachKey,
     -- array
     eachIndex = eachIndex,
+    lastIndex = lastIndex,
     pop = pop,
     push = push,
     shift = shift,
