@@ -261,14 +261,13 @@ end
 
 -- find last index number
 local function lastIndex( tbl )
-    local idx, _ = next( tbl );
     local tail;
     
-    while idx do
-        if type( idx ) == 'number' then
+    for idx in pairs( tbl ) do
+        -- lua ignore the order of array
+        if type( idx ) == 'number' and ( not tail or tail < idx ) then
             tail = idx;
         end
-        idx, _ = next( tbl, idx );
     end
     
     return tail;
