@@ -25,7 +25,7 @@ local tbl = {
     ['test'] = 'sample'
 };
 local cmp = [[
-{ 
+{
     [1] = true,
     [2] = false,
     [3] = "hello",
@@ -35,12 +35,12 @@ local cmp = [[
     [7] = 1,
     [8] = -1,
     [9] = "]] .. tostring(fn) .. [[",
-    [10] = { },
+    [10] = {},
     [11] = inf,
     [12] = nan,
     [13] = "]] .. tostring(co) .. [[",
     test = "sample",
-    ["]] .. tostring(co) .. [["] = { 
+    ["]] .. tostring(co) .. [["] = {
         [1] = "test"
     }
 }]];
