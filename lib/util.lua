@@ -184,7 +184,11 @@ local function inspect( obj, opt )
         });
     end
     
-    return opt and opt.callback( obj, t, FOR_VALUE, false ) or tostring( obj );
+    if opt and opt.callback then
+        obj = opt.callback( obj, t, FOR_VALUE, nil, opt.udata );
+    end
+    
+    return tostring( obj );
 end
 
 
