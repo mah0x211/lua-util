@@ -22,7 +22,13 @@
 
 --]]
 
-local LUA_VERSION = tonumber( _VERSION:match( 'Lua (.+)$' ) );
+-- module
+local format = string.format;
+local match = string.match;
+local sort = table.sort;
+local concat = table.concat;
+-- constants
+local LUA_VERSION = tonumber( match( _VERSION, 'Lua (.+)$' ) );
 local LUA_FIELDNAME_PAT = '^[a-zA-Z_][a-zA-Z0-9_]*$';
 local FOR_INDEX = 'index';
 local FOR_VALUE = 'value';
@@ -61,85 +67,96 @@ local RESERVED_WORD = {
     ['end']         = true
 };
 
-local function defaultCallback( value, valueType, valueFor, key, udata )
+-- defaultCallback( value, valueType, valueFor, key, udata )
+local function defaultCallback( value )
     return value;
 end
 
 
-local function _inspect( obj, indent, nestIndent, tail, ctx )
+local function sortIndex( a, b )
+    if a.typ == b.typ then
+        return a.key < b.key;
+    end
+    
+    return a.typ == 'number';
+end
+
+
+local function _inspect( obj, indent, nestIndent, ctx )
     local ref = tostring( obj );
     local val;
     
     -- circular reference
     if not ctx.circular[ref] then
         local res = {};
-        local k,v = next( obj );
-        local nestTail = '';
+        local arr = {};
+        local narr = 0;
+        local fieldIndent = indent .. nestIndent;
+        local arrFmt = fieldIndent .. '[%d] = %s';
+        local strFmt = fieldIndent .. '%s = %s';
+        local ptrFmt = fieldIndent .. '[%q] = %s';
         local t, skip, raw;
         
         -- save reference
         rawset( ctx.circular, ref, true );
-        -- set head and tail bracket
-        table.insert( res, '{ ' );
-        tail = ( k and '\n' .. indent or '' ) .. '}';
         
-        while k do
+        for k, v in pairs( obj ) do
             -- key
             val, skip = ctx.callback( k, type( k ), FOR_INDEX, nil, ctx.udata );
-            k = val or k;
             if not skip then
-                t = type( k );
-                -- hash index
-                -- array index
-                if t == 'number' then
-                    table.insert( res, 
-                        nestTail .. '\n' .. indent .. nestIndent .. 
-                        '['.. k ..'] = '
-                    );
-                -- standard name
-                elseif t == 'string' and not RESERVED_WORD[k] and
-                       k:match( LUA_FIELDNAME_PAT ) then
-                    table.insert( res, 
-                        nestTail .. '\n' .. indent .. nestIndent .. k .. ' = ' 
-                    );
-                -- add bracket
-                else
-                    table.insert( res, 
-                        nestTail .. '\n' .. indent .. nestIndent ..
-                        '["' .. tostring( k ) .. '"] = ' );
-                end
-                
-                -- value
+                k = val or k;
+                -- check value
                 val, raw = ctx.callback( v, type( v ), FOR_VALUE, k, ctx.udata );
                 v = val or v;
-                t = type( v );
                 -- raw value
                 if raw then
-                    table.insert( res, v );
-                elseif t == 'table' then
-                    table.insert( res, 
-                        _inspect( v, indent .. nestIndent, nestIndent, ',', ctx )
-                    );
-                elseif t == 'string' then
-                    table.insert( res, string.format( '%q', v ) );
-                elseif t == 'number' or t == 'boolean' then
-                    table.insert( res, tostring(v) );
+                    v = tostring( v );
                 else
-                    table.insert( res, string.format( '%q', tostring( v ) ) );
+                    t = type( v );
+                    if t == 'table' then
+                        v = _inspect( v, fieldIndent, nestIndent, ctx );
+                    elseif t == 'string' then
+                        v = format( '%q', v );
+                    elseif t == 'number' or t == 'boolean' then
+                        v = tostring( v );
+                    else
+                        v = format( '%q', tostring( v ) );
+                    end
                 end
-            end
                 
-            -- next item
-            k,v = next( obj, k );
-            nestTail = ',';
+                -- check key
+                t = type( k );
+                narr = narr + 1;
+                if t == 'number' then
+                    v = format( arrFmt, k, v );
+                elseif t == 'string' and not RESERVED_WORD[k] and
+                       match( k, LUA_FIELDNAME_PAT ) then
+                    v = format( strFmt, k, v );
+                else
+                    k = tostring( k );
+                    v = format( ptrFmt, k, v );
+                    t = 'string';
+                end
+                arr[narr] = { typ = t, key = k, val = v };
+            end
         end
         
         -- remove reference
         rawset( ctx.circular, ref, nil );
-        -- append tail
-        table.insert( res, tail );
+        -- concat result
+        if narr > 0 then
+            sort( arr, sortIndex );
+            
+            for i = 1, narr do
+                res[i] = arr[i].val;
+            end
+            res[1] = '{' .. ctx.LF .. res[1];
+            res = concat( res, ',' .. ctx.LF ) .. ctx.LF .. indent .. '}';
+        else
+            res = '{}';
+        end
         
-        return table.concat( res, '' );
+        return res;
     end
     
     val = ctx.callback( obj, type( obj ), FOR_CIRCULAR, obj, ctx.udata );
@@ -147,14 +164,20 @@ local function _inspect( obj, indent, nestIndent, tail, ctx )
 end
 
 
+-- opt
+--  depth   : indent depth
+--  padding : first indent
+--  callback: callback function for each key and value
+--  udata   : userdata for callback function
 local function inspect( obj, opt )
     local t = type( obj );
     
     if t == 'table' then
-        local indent = ('%'.. ( opt and opt.depth or INDENT_LV ) ..'s'):format('');
-        local padding = ('%'.. ( opt and opt.padding or 0 ) ..'s'):format('');
+        local indent = format( '%' .. ( opt and opt.depth or INDENT_LV ) .. 's', '' );
+        local padding = format( '%' .. ( opt and opt.padding or 0 ) .. 's', '' );
         
-        return _inspect( obj, padding, indent, '', {
+        return _inspect( obj, padding, indent, {
+            LF = indent == '' and ' ' or '\n',
             circular = {},
             callback = opt and opt.callback or defaultCallback,
             udata = opt and opt.udata or nil
