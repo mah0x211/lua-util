@@ -75,6 +75,10 @@ end
 
 local function sortIndex( a, b )
     if a.typ == b.typ then
+        if a.typ == 'boolean' then
+            return b.key;
+        end
+        
         return a.key < b.key;
     end
     
@@ -92,7 +96,7 @@ local function _inspect( obj, indent, nestIndent, ctx )
         local arr = {};
         local narr = 0;
         local fieldIndent = indent .. nestIndent;
-        local arrFmt = fieldIndent .. '[%d] = %s';
+        local arrFmt = fieldIndent .. '[%s] = %s';
         local strFmt = fieldIndent .. '%s = %s';
         local ptrFmt = fieldIndent .. '[%q] = %s';
         local t, skip, raw;
@@ -127,8 +131,8 @@ local function _inspect( obj, indent, nestIndent, ctx )
                 -- check key
                 t = type( k );
                 narr = narr + 1;
-                if t == 'number' then
-                    v = format( arrFmt, k, v );
+                if t == 'number' or t == 'boolean' then
+                    v = format( arrFmt, tostring( k ), v );
                 elseif t == 'string' and not RESERVED_WORD[k] and
                        match( k, LUA_FIELDNAME_PAT ) then
                     v = format( strFmt, k, v );
