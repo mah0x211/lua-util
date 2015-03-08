@@ -43,16 +43,17 @@ local CLONE_SAFE_VAL = {
     ['boolean'] = 1,
 };
 
-local function cloneSafe( tbl )
+local function _cloneSafe( tbl )
     local ctbl = {};
+    local t;
     
     for k, v in pairs( tbl ) do
         -- key type: string, unsigned int
         if typeof.string( k ) or typeof.uint( k ) then
-            vt = type( v );
-            if vt == 'table' then
-                ctbl[k] = cloneSafe( v );
-            elseif CLONE_SAFE_VAL[vt] then
+            t = type( v );
+            if t == 'table' then
+                ctbl[k] = _cloneSafe( v );
+            elseif CLONE_SAFE_VAL[t] then
                 ctbl[k] = v;
             end
         end
@@ -61,38 +62,39 @@ local function cloneSafe( tbl )
     return ctbl;
 end
 
-
-local function _clone( tbl, lv )
-    local ctbl = {};
+local function cloneSafe( val )
+    local t = type( val );
     
-    if lv < 0 or lv > 0 then
-        for k, v in pairs( tbl ) do
-            if type( v ) == 'table' then
-                ctbl[k] = _clone( v, lv - 1 );
-            else
-                ctbl[k] = v;
-            end
-        end
-    else
-        ctbl = tbl;
+    if t == 'table' then
+        return _cloneSafe( val );
     end
     
-    return ctbl;
+    return CLONE_SAFE_VAL[t] and val or nil;
 end
 
 
-local function clone( tbl )
+local function _clone( tbl )
     local ctbl = {};
     
     for k, v in pairs( tbl ) do
         if type( v ) == 'table' then
-            ctbl[k] = clone( v );
+            ctbl[k] = _clone( v );
         else
             ctbl[k] = v;
         end
     end
     
     return ctbl;
+end
+
+local function clone( val )
+    local t = type( val );
+    
+    if t == 'table' then
+        return _clone( val );
+    end
+    
+    return val;
 end
 
 
