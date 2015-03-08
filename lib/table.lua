@@ -80,8 +80,19 @@ local function _clone( tbl, lv )
     return ctbl;
 end
 
-local function clone( tbl, lv )
-    return _clone( tbl, typeof.finite( lv ) and lv or -1 );
+
+local function clone( tbl )
+    local ctbl = {};
+    
+    for k, v in pairs( tbl ) do
+        if type( v ) == 'table' then
+            ctbl[k] = clone( v );
+        else
+            ctbl[k] = v;
+        end
+    end
+    
+    return ctbl;
 end
 
 
