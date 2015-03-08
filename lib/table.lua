@@ -37,6 +37,31 @@ local function copy( tbl )
 end
 
 
+local CLONE_SAFE_VAL = {
+    ['string'] = 1,
+    ['number'] = 1,
+    ['boolean'] = 1,
+};
+
+local function cloneSafe( tbl )
+    local ctbl = {};
+    
+    for k, v in pairs( tbl ) do
+        -- key type: string, unsigned int
+        if typeof.string( k ) or typeof.uint( k ) then
+            vt = type( v );
+            if vt == 'table' then
+                ctbl[k] = cloneSafe( v );
+            elseif CLONE_SAFE_VAL[vt] then
+                ctbl[k] = v;
+            end
+        end
+    end
+    
+    return ctbl;
+end
+
+
 local function _clone( tbl, lv )
     local ctbl = {};
     
@@ -483,6 +508,7 @@ local METHODS = {
     -- table
     copy = copy,
     clone = clone,
+    cloneSafe = cloneSafe,
     seal = seal,
     freeze = freeze,
     keys = keys,
