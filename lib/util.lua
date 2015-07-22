@@ -27,6 +27,8 @@ local format = string.format;
 local match = string.match;
 local sort = table.sort;
 local concat = table.concat;
+local getupvalue = debug.getupvalue;
+local setupvalue = debug.setupvalue;
 -- constants
 local LUA_VERSION = tonumber( match( _VERSION, 'Lua (.+)$' ) );
 local LUA_FIELDNAME_PAT = '^[a-zA-Z_][a-zA-Z0-9_]*$';
@@ -228,17 +230,41 @@ local function evalfile( file, env, mode )
 end
 
 
+local function getfnupvalues( fn )
+    local upv = {};
+    local i = 1;
+    local k, v = getupvalue( fn, i );
+    
+    while k do
+        upv[i] = { key = k, val = v };
+        i = i + 1;
+        k, v = getupvalue( fn, i );
+    end
+    
+    return upv;
+end
+
+
+local function setfnupvalues( fn, upv, repl )
+    local repl;
+    
+    for i, kv in ipairs( upv ) do
+        setupvalue( fn, i, repl and repl[kv.key] or kv.val );
+    end
+end
+
+
 local function getfnenv( fn )
     if LUA_VERSION > 5.1 then
         local i = 1;
-        local k, v = debug.getupvalue( fn, i );
+        local k, v = getupvalue( fn, i );
         
         while k do
             if k == '_ENV' then
                 return v;
             end
             i = i + 1;
-            k, v = debug.getupvalue( fn, i );
+            k, v = getupvalue( fn, i );
         end
     else
         return getfenv( fn );
@@ -250,6 +276,8 @@ return {
     inspect = inspect,
     eval = eval,
     evalfile = evalfile,
+    getfnupvalues = getfnupvalues,
+    setfnupvalues = setfnupvalues,
     getfenv = getfnenv,
     ['typeof'] = require('util.typeof'),
     ['string'] = require('util.string'),
