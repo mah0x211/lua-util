@@ -280,6 +280,7 @@ return {
     setfupvalues = setfnupvalues,
     getfenv = getfnenv,
     ['typeof'] = require('util.typeof'),
+    ['is'] = require('util.is'),
     ['string'] = require('util.string'),
     ['table'] = require('util.table')
 };
