@@ -131,8 +131,9 @@ local function isUInt32( arg )
 end
 
 
+local EXPORTS = {};
 
-return {
+for k, v in pairs({
     -- type
     ['Nil'] = isNil,
     ['Boolean'] = isBoolean,
@@ -167,5 +168,9 @@ return {
     ['UInt8'] = isUInt8,
     ['UInt16'] = isUInt16,
     ['UInt32'] = isUInt32
-};
+}) do
+    EXPORTS[k], EXPORTS[k:lower()] = v, v;
+end
 
+
+return EXPORTS;
